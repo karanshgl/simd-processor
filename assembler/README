@@ -1,0 +1,117 @@
+This is an assembler written for SimpleRISC assembly language
+Content of README file:
+1. Format of assembly input
+2. Build
+3. RUN
+4. Limitation/features
+5. TODO
+6. Revision history
+
+1. Format of assembly input
+=======================
+
+Assembler directives:
+--------------------
+Three assembler directives supported: .text, .end, .data
+.text  : Start of a code segment
+.end   : End of code segment
+.data  : Start of data segment
+
+Labels
+------
+Any literal before ':' is considered as label.
+It is suggested that all label start with prefix . (dot).
+Assembler do not support data labels without prefix .
+
+Instruction statement
+---------------------
+Follow the instruction syntax rules. A instruction that does not follow syntax
+may result in underminstic behavior
+
+Data section
+------------
+
+Data section will start with .data directive. It will be followed by data
+labels.  Each data label can be followed either by space statement, or by
+initial data values in the label. Each data value will be written in new line.
+Postive, negative, hex values are accepted as data values.
+
+For example:
+    .DATA
+    .ARRAY1:
+        10
+        20
+        30
+        -15
+        0x10
+    .ARRAY2:
+        1
+        2
+        3
+        4
+        5
+    .ARRAY3: SPACE 5
+
+In this example, an .ARRAY1, .ARRAY2 and .ARRAY3 is allocated space of 5 words
+each. .ARRAY1, and .ARRAY2 are initilized with values, and .ARRAY3 is allocated
+space and initilized with 0.
+
+The labels of data section can be used in code segment as immidiates.
+For example, "MOV R1, .ARRAY1" will copy the address/pointer of array .ARRAY1 in
+register R1.
+
+2. Build
+========
+
+Use Makefile
+
+3. Run
+======
+
+./bin/assembler <input asm file> <output hex file>
+
+4. Limitation/Features
+======================
+
+* The comments supported in the assembly file:
+    - Any line that starts with #, %, //, or @ will be considered a comment
+    - C++ type comments that is  /*   */ are not supported
+
+* The address for instruction will start from 0x0. First instruction in assembly
+  line will be assigned address 0x0. And the addresses will be sequential after
+  that.
+
+    - No re-ordering of addresses is done for a particular symbol. For example,
+      If you want your execution to start from a particular symbol like main,
+      then first instruction should be "b main"
+
+* Input assembly language is case insensitive. That means opcode or registers
+  can be written in upper case or lower case
+
+* If the input file is written in DOS/Windows, it should be first converted into
+  unix, by using command dos2unix
+
+* .print would be treated as nop
+
+5. TODO list
+============
+* Support for multi-line comments
+* Support for more assembler directives
+
+6. Revision History
+===================
+Revision 1.2 (16 Nov 2017)
+Issues fixed:
+ - DOS file limitation removed
+ - Issues related to .end directive fixed
+ - .text backward campatibility restored.
+
+Revision 1.2 (8 Nov 2017)
+ - Added support of .text, .data and .end directuves
+ - More infor in debug
+
+Revision 1.1 (Dec 2016)
+ - Few bugs fixed
+
+Revision 1.0 (Sept 2016)
+ - Initial release

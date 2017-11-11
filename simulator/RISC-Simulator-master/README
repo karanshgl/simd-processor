@@ -1,0 +1,130 @@
+=========================================================================
+RISC-Simulator: Functional & Pipeline Simulator for simple RISC processor 
+=========================================================================
+
+README
+
+Table of contents
+1. Design Doc
+2. Directory Structure
+3. How to build
+4. How to execute
+
+Design Doc:
+-----------
+
+To design a Simple RISC Simulator in C++.
+
+For understanding Simple RISC Language refer "Computer Organisation and Architecture" book by Dr. Sarangi, IITD. Link http://www.cse.iitd.ac.in/~srsarangi/archbooksoft.html
+
+FLOW DIAGRAM
+
+                       Assembler*[2]                        RISC-Simulator*[4]
+Assembly Program*[1] -----------------> Inst MEM file*[3] ----------------------> Simulated Output*[5]
+
+
+*[1] Assembly Program: An assembly program in Simple RISC language.
+     You may find sample assembly program at https://github.com/namangl/architecture/tree/master/AssemblyPrograms
+     [Usage Guide]: Use as input to Assembler.
+
+*[2] Assembler: Converts assembly program to Inst MEM file.
+     Use the Assembler designed by Dr. Neeraj Goel, IIT-RPR. Link https://drive.google.com/open?id=0B1ifefwDdR5UdjZjS1locVhBSFk
+     [Usage Guide]: Download and extract the tgz file from the link provided and refer its Readme.
+     
+*[3] Inst MEM file: Encoded assembly instructions in hex. Generated as Assembler Output.
+     You may find sample Inst MEM file in "test" folder of this project/repository
+     [Usage Guide]: Use as input to RISC-Simulator
+
+*[4] RISC-Simulator: This project/repository
+
+*[5] Simulated Output: Output of this project based on passed arguments. Refer "How to execute" section for more
+
+Directory Structure:
+--------------------
+CSL211-Project
+  |
+  |- bin
+      |
+      |- sim
+  |- include
+      |
+      |- Core.h
+      |- Memory.h
+      |- PipelineRegister.h
+      |- Register.h
+  |- src
+      |- main.cpp
+      |- Core.cpp
+      |- Memory.cpp
+      |- PipelineRegister.cpp
+  |- test
+      |- simple_add.mem
+      |- fib.mem
+      |- array_add.mem
+      |- functioncall.mem
+
+How to build
+------------
+For building:
+	$make
+
+For cleaning the project:
+	$make clean
+
+How to execute
+--------------
+
+$./bin/sim <arguments>
+
+{ Example }
+
+$./bin/sim -input test/simple_add.mem -output out.txt -debug 2
+Use "simple_add.mem" as input and generate output in "out.txt" using functional debug level 2
+
+$./bin/sim -input test/functioncall.mem -output out.txt -debug 1 -pipe -context context.txt
+Use "functioncall.mem" as input and generate output in "out.txt" using pipeline debug level 1 and context of program in "context.txt"
+
+{ <arguments> }
+
+Help
+-h : Display Help
+
+Mandatory Arguments
+-input [Input MEM File name] : Specify Input File
+-output [Input MEM File name] : Specify Output File
+
+Optional Arguments
+-pipe : Use pipeline based processor
+-debug [1 | 2] : Specify debug level
+-mem [Memory_OUT File name] : Specify Memory_OUT File Name
+-context [Context_OUT File name] : Specify Context_OUT File Name
+
+Note
+----
+
+*Memory_OUT is the complete memory file at the termination of program 
+*Context_OUT is the complete context of processor (Register Values, Flags, PC) at the termination of program.
+*Please disable word wrap to see output.
+*In pipeline based version the register values are taken at beginning of each cycle and displayed in hex.
+*In functional based version Labels specified as relative signed integer with respect to PC in <>
+ Example <-2> as label means label points to 2 instructions up from current instruction
+
+
+The output contains instruction by instruction work done in each cycle in all stages namely -
+
+1. FETCH
+2. DEOCDE
+3. EXECUTE
+4. MEMORY ACCESS
+5. WRITEBACK
+
+Developed by
+Naman Goyal (email: 2015csb1021@iitrpr.ac.in)
+
+Supervised by
+Dr. Neeraj Goel (email: neeraj@iitrpr.ac.in)
+
+Notable Contributions by
+Eeshaan Sharma
+Ms. Varsha Bhat
+Ms. Amanjot Kaur
