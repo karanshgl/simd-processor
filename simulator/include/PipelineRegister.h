@@ -22,6 +22,8 @@
 
 #include "Register.h"
 
+typedef unsigned long long int uint64;
+
 class PipelineRegister {
 public:
 	Register<bool> bubble;
@@ -34,6 +36,11 @@ public:
 	Register<unsigned int> operand2;
 	Register<unsigned int> aluResult;
 	Register<unsigned int> ldResult;
+	Register<uint64> v_A;
+	Register<uint64> v_B;
+	Register<uint64> v_operand2;
+	Register<uint64> v_aluresult;
+	Register<uint64> v_ldResult;
 
 	Register<bool> isSt;
 	Register<bool> isLd;
@@ -57,6 +64,17 @@ public:
 	Register<bool> isAnd;
 	Register<bool> isNot;
 	Register<bool> isMov;
+	Register<bool> isVMov1;
+	Register<bool> isVMov2;
+	Register<bool> isVAdd;
+	Register<bool> isVSub;
+	Register<bool> isVMul;
+	Register<bool> isVDiv;
+	Register<bool> isVMod;
+	Register<bool> isVAnd;
+	Register<bool> isVOr;
+	Register<bool> isVLd;
+	Register<bool> isVSt;
 public:
 	PipelineRegister(bool pipe);
 	void clock();

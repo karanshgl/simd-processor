@@ -25,6 +25,7 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
+#include <stdint.h>
 
 #include "Global.h"
 #include "Memory.h"
@@ -68,7 +69,8 @@ class Core
 		PipelineRegister ma_rw;
 
 		Register<unsigned int> PC;
-        unsigned int R[16];        
+        unsigned int R[16];  
+        uint64 V[16];	// Vector Registers      
         bool eq, gt;
         bool isBranchTaken;
         unsigned int branchPC;
