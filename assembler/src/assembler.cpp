@@ -344,6 +344,17 @@ void Assembler::initOpcodes() {
     opcodes["b"]   = B;   //18
     opcodes["call"]= CALL;//19
     opcodes["ret"] = RET; //20
+    opcodes["vmov1"] = VMOV1; //21
+    opcodes["vmov2"] = VMOV2; //22
+    opcodes["vadd"] = VADD; //23
+    opcodes["vsub"] = VSUB; //24
+    opcodes["vmul"] = VMUL; //25
+    opcodes["vdiv"] = VDIV; //26
+    opcodes["vmod"] = VMOD; //27
+    opcodes["vand"] = VAND; //28
+    opcodes["vor"] = VOR; //29
+    opcodes["vld"] = VLD; //30
+    opcodes["vst"] = VST; //31
     opcodes[".print"] = NOP; //Nullyfy the .print macro for now.
 }
 
@@ -360,13 +371,13 @@ bool Assembler::isSingleOperand(Opcode opcode) {
 }
 
 bool Assembler::isMemoryOperand(Opcode opcode) {
-    if(opcode == LD || opcode == ST)
+    if(opcode == LD || opcode == ST || opcode == VLD || opcode == VST) 
         return true;
     return false;
 }
 
 bool Assembler::isTwoOperand(Opcode opcode) {
-    if(opcode == CMP || opcode == NOT || opcode == MOV)
+    if(opcode == CMP || opcode == NOT || opcode == MOV || opcode == VMOV1 || opcode == VMOV2)
         return true;
     return false;
 }

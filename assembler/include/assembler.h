@@ -41,27 +41,38 @@ typedef unsigned int uint32;
 
 #define DATA_SEG 0x500
 enum Opcode {
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    MOD,
-    CMP,
-    AND,
-    OR,
-    NOT,
-    MOV,
-    LSL,
-    LSR,
-    ASR,
-    NOP,
-    LD,
-    ST,
-    BEQ,
-    BGT,
-    B,
-    CALL,
-    RET,
+    ADD,    //0
+    SUB,    //1
+    MUL,    //2
+    DIV,    //3
+    MOD,    //4
+    CMP,    //5
+    AND,    //6
+    OR,     //7
+    NOT,    //8
+    MOV,    //9
+    LSL,    //10
+    LSR,    //11
+    ASR,    //12
+    NOP,    //13
+    LD,     //14
+    ST,     //15
+    BEQ,    //16
+    BGT,    //17
+    B,      //18
+    CALL,   //19
+    RET,    //20
+    VMOV1,  //21
+    VMOV2,  //22
+    VADD,   //23
+    VSUB,   //24
+    VMUL,   //25
+    VDIV,   //26
+    VMOD,   //27
+    VAND,   //28
+    VOR,    //29
+    VLD,    //30
+    VST,    //31
     END
 };
 
