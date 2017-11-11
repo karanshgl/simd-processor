@@ -112,7 +112,7 @@ class Assembler {
             void initOpcodes();
             void readLabel(std::string &input, std::string &label) ;
             void readMemoryOffset(std::string &input, int &offset);
-            void readRegisterOperand(std::string &input, int &regIndex, bool &imm);
+            void readRegisterOperand(std::string &input, int &regIndex, bool &imm, char &reg_vec);
             void lowerCase(std::string &input);
             uint32 generateEncoding(Opcode opcode);
             uint32 generateEncoding(Opcode opcode, int offset);
@@ -124,6 +124,7 @@ class Assembler {
             bool isSingleOperand(Opcode opcode);
             bool isMemoryOperand(Opcode opcode);
             bool isTwoOperand(Opcode opcode);
+            void isValid(Opcode opcode, char reg_vec, int opNum);
             int readNumber(std::string &);
 
         private:

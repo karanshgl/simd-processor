@@ -18,6 +18,8 @@
  */
 
 #include <assembler.h>
+#include <iostream>
+using namespace std;
 
 Assembler::Assembler(char *input, char *output) {
     initOpcodes();
@@ -230,25 +232,34 @@ void Assembler::assemblerPass2(char* output) {
             //ld, st
             int destReg, src1Reg, offset;
             bool imm;
-            readRegisterOperand(inst->operands, destReg, imm);
+            char reg_vec = 'r';
+            readRegisterOperand(inst->operands, destReg, imm,reg_vec);
+            isValid(inst->opcode,reg_vec,1);
             readMemoryOffset(inst->operands, offset);
-            readRegisterOperand(inst->operands, src1Reg, imm);
+            readRegisterOperand(inst->operands, src1Reg, imm,reg_vec);
             inst->encoding = generateEncoding(inst->opcode, destReg, src1Reg, offset);
 
         } else if(isTwoOperand(inst->opcode)) {
             //cmp, move
             int destReg, src2;
             bool imm;
-            readRegisterOperand(inst->operands, destReg, imm);
-            readRegisterOperand(inst->operands, src2, imm);
+            char reg_vec = 'r';
+            readRegisterOperand(inst->operands, destReg, imm, reg_vec);
+            isValid(inst->opcode,reg_vec,1);
+            readRegisterOperand(inst->operands, src2, imm, reg_vec);
+            isValid(inst->opcode,reg_vec,2);
             inst->encoding = generateEncoding(inst->opcode, destReg, src2, imm);
         } else {
             //default three operands
             int destReg, src1, src2;
             bool imm;
-            readRegisterOperand(inst->operands, destReg, imm);
-            readRegisterOperand(inst->operands, src1, imm);
-            readRegisterOperand(inst->operands, src2, imm);
+            char reg_vec = 'r';
+            readRegisterOperand(inst->operands, destReg, imm,reg_vec);
+            isValid(inst->opcode,reg_vec,1);
+            readRegisterOperand(inst->operands, src1, imm,reg_vec);
+            isValid(inst->opcode,reg_vec,2);
+            readRegisterOperand(inst->operands, src2, imm,reg_vec);
+            isValid(inst->opcode,reg_vec,3);
             inst->encoding = generateEncoding(inst->opcode, destReg, src1, src2, imm);
         }
         if(inst->modH) {
@@ -382,6 +393,72 @@ bool Assembler::isTwoOperand(Opcode opcode) {
     return false;
 }
 
+void Assembler::isValid(Opcode opcode, char reg_vec, int opNum) {
+
+    if(reg_vec == 'i' && opNum>1) return;
+
+    if(reg_vec == 'i'){
+        std::cout  << "Error: Destination cannot be imm"<<endl;
+        exit(1);
+    }
+
+    if(opcode<21){
+        // Not a vector instruction, reg_vec must be r
+        if(reg_vec!='r'){
+            std::cout  << "Error: Incorrect Operand"<<endl;
+            exit(1);
+        }
+        return;
+    }
+
+    if(opcode == VMOV1){
+        // Format Vn,Rn
+        if(opNum==1){
+            // Should be Vn
+            if(reg_vec!='v'){
+                std::cout  << "Error: Incorrect Operand"<<endl;
+                exit(1);
+            }
+        }
+        else if(opNum==2){
+            // Should be Rn
+            if(reg_vec!='r'){
+                std::cout  << "Error: Incorrect Operand"<<endl;
+                exit(1);
+            }
+        }
+        return;
+    }
+
+    if(opcode == VMOV2){
+        // Format Rn, Vn
+        if(opNum==1){
+            // Should be Vn
+            if(reg_vec!='r'){
+                std::cout  << "Error: Incorrect Operand"<<endl;
+                exit(1);
+            }
+        }
+        else if(opNum==2){
+            // Should be Rn
+            if(reg_vec!='v'){
+                std::cout  << "Error: Incorrect Operand"<<endl;
+                exit(1);
+            }
+        }
+        return;
+    }
+
+    if(opcode > 20 && opcode < 32){
+        // Vector instruction
+        if(reg_vec!='v'){
+            // Should be V
+            std::cout  << "Error: Incorrect Operand"<<endl;
+            exit(1);
+        }
+    }
+}
+
 //input is operands string
 //In this case, it will contain just label
 void Assembler::readLabel(std::string &input, std::string &label) {
@@ -398,7 +475,7 @@ void Assembler::readLabel(std::string &input, std::string &label) {
 //assume the operands as a string
 //outputs the register number, or immediate, as the case be
 //trims the operand string, by removing the operand given as output
-void Assembler::readRegisterOperand(std::string &input, int &regIndex, bool &imm) {
+void Assembler::readRegisterOperand(std::string &input, int &regIndex, bool &imm, char &reg_vec) {
     removeInitialWhiteSpace(input);
     std::string operString = input.substr(0, input.find_first_of(','));
     input = input.substr(input.find_first_of(',') + 1); //input is trimmed
@@ -407,8 +484,9 @@ void Assembler::readRegisterOperand(std::string &input, int &regIndex, bool &imm
         regIndex = 15;
         imm = false;
         return;
-    } else if(operString[0] == 'r') {
+    } else if(operString[0] == 'r' || operString[0]=='v') {
         imm = false;
+        reg_vec = operString[0];
         if(operString[2] >= '0' && operString[2] <= '5'){
             regIndex = operString[2] - '0' + 10 * (operString[1] - '0');
         } else {
@@ -432,7 +510,8 @@ void Assembler::readRegisterOperand(std::string &input, int &regIndex, bool &imm
         return;
     }
     //not a register, so must be an immediate
-    regIndex = readNumber(operString);;
+    regIndex = readNumber(operString);
+    reg_vec = 'i';
     imm = true;
     return;
 }
