@@ -1,3 +1,4 @@
 *.asm
 *.hex
 *.log
+*.mem
