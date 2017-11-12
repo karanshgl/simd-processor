@@ -121,6 +121,7 @@ void Core::reset_proc()
 	for(int i=0;i<16;i++)
 	{
 		R[i] = 0;
+		V[i] = 0
 	}
 	R[14] = MEM_CAPACITY; // Stack Pointer initialize
 	PC.Write(0);
@@ -355,6 +356,17 @@ void Core::decode() {
 	bool temp_isAnd;
 	bool temp_isNot;
 	bool temp_isMov;
+	bool temp_isVMov1;
+	bool temp_isVMov2;
+	bool temp_isVAdd;
+	bool temp_isVSub;
+	bool temp_isVMul;
+	bool temp_isVDiv;
+	bool temp_isVMod;
+	bool temp_isVAnd;
+	bool temp_isVOr;
+	bool temp_isVLd;
+	bool temp_isVSt;
 
 	unsigned int opcode1 = inst_bitset(temp_instruction_word, 28, 28);
 	unsigned int opcode2 = inst_bitset(temp_instruction_word, 29, 29);
@@ -541,6 +553,99 @@ void Core::decode() {
 	}
 	else{
 		temp_isMov = false;
+	}
+
+	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
+		temp_isVMov1 = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVMov1 = false;
+	}
+
+	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
+		temp_isVMov2 = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVMov2 = false;
+	}
+
+	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
+		temp_isVAdd = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVAdd = false;
+	}
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
+		temp_isVSub = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVSub = false;
+	}
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 1){
+		temp_isVMul = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVMul = false;
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
+		temp_isVDiv = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVDiv = false;
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 1){
+		temp_isVMod = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVMod = false;
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
+		temp_isVAnd = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVAnd = false;
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
+		temp_isVOr = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVOr = false;
+	}
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
+		temp_isVLd = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVLd = false;
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
+		temp_isVSt = true;
+		//pprint(2)<<"isMov ";
+	}
+	else{
+		temp_isVSt = false;
 	}
 	//pprint(2)<<endl;
 
@@ -1145,7 +1250,7 @@ bool Core::checkValidPC(unsigned int testPC){
 	}
 	unsigned int testInst = MEM.Read(testPC);
 
-	if (inst_bitset(testInst,28, 32) < 21) {
+	if (inst_bitset(testInst,28, 32) < 32) {
 		return true;
 	}
 
