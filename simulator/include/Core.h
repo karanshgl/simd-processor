@@ -89,6 +89,7 @@ class Core
 		std::string disassemble (unsigned int inst_word);
 		//Convert Register Number from int to string
 		std::string registerstring(unsigned int a);
+		std::string vectorstring(unsigned int a);
 		//Convert integer to signed string based on bit size
 		std::string sintstring(unsigned int a, int size);
 		//Convert integer to hex string

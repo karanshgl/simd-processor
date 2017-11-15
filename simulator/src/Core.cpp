@@ -367,6 +367,7 @@ void Core::decode() {
 	bool temp_isVOr;
 	bool temp_isVLd;
 	bool temp_isVSt;
+	bool temp_isV = false;
 
 	unsigned int opcode1 = inst_bitset(temp_instruction_word, 28, 28);
 	unsigned int opcode2 = inst_bitset(temp_instruction_word, 29, 29);
@@ -557,6 +558,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
 		temp_isVMov1 = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -565,6 +567,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
 		temp_isVMov2 = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -573,6 +576,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
 		temp_isVAdd = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -581,6 +585,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
 		temp_isVSub = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -589,6 +594,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 1){
 		temp_isVMul = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -598,6 +604,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
 		temp_isVDiv = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -607,6 +614,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 1){
 		temp_isVMod = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -616,6 +624,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
 		temp_isVAnd = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -625,6 +634,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
 		temp_isVOr = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -633,6 +643,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
 		temp_isVLd = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -642,10 +653,16 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
 		temp_isVSt = true;
+		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
 		temp_isVSt = false;
+	}
+
+	if(temp_isV) {
+		decoderV(temp_isVAdd, temp_isVSub, temp_isVMov1, temp_isVMov2, temp_isVDiv, temp_isVMul, temp_isVSt, temp_isVLd, temp_isVOr, temp_isVAnd, temp_isVMod, temp_isImmediate, temp_isAnd, temp_isAdd, temp_isSub, temp_isBgt, temp_isBeq, temp_isDiv, temp_isMul, temp_isUbranch, temp_isCall, temp_isCmp, temp_isRet, temp_isNot, temp_isOr, temp_isSt, temp_isLd, temp_isAsr, temp_isLsr, temp_isLsl, temp_isMod, temp_isWb, temp_branchTarget);
+		return;
 	}
 	//pprint(2)<<endl;
 
@@ -689,6 +706,7 @@ void Core::decode() {
 	//pprint(2)<<endl<<"branchTarget is 0x"<<hex<<temp_branchTarget<<endl;
 
 	//////////   Reading Register File  ///////////
+
 	unsigned int temp_operand1;
 	unsigned int temp_operand2;
 	unsigned int temp_rd = inst_bitset(temp_instruction_word, 23,26);
@@ -776,11 +794,286 @@ void Core::decode() {
 	of_ex.isAnd.Write(temp_isAnd);
 	of_ex.isNot.Write(temp_isNot);
 	of_ex.isMov.Write(temp_isMov);
+	// .Write in OF stage for vector operations
+	of_ex.temp_isVMod.Write(temp_isVMod);
+	of_ex.temp_isVSt.Write(temp_isVSt);
+	of_ex.temp_isVLd.Write(temp_isVLd);
+	of_ex.temp_isVOr.Write(temp_isVOr);
+	of_ex.temp_isVAnd.Write(temp_isVAnd);
+	of_ex.temp_isVDiv.Write(temp_isVDiv);
+	of_ex.temp_isVMul.Write(temp_isVMul);
+	of_ex.temp_isVSub.Write(temp_isVSub);
+	of_ex.temp_isVMov1.Write(temp_isVMov1);
+	of_ex.temp_isVMov2.Write(temp_isVMov2);
+	of_ex.temp_isVAdd.Write(temp_isVAdd);
 
 	of_ex.ForwardBubble(bubble_inst);
 
 }
 
+void Core::decoderV(bool temp_isVAdd,bool temp_isVSub,bool temp_isVMov1,bool temp_isVMov2,bool temp_isVDiv,bool temp_isVMul,bool temp_isVSt,bool temp_isVLd,bool temp_isVOr,bool temp_isVAnd,bool temp_isVMod,bool temp_isImmediate,bool temp_isAnd,bool temp_isAdd,bool temp_isSub,bool temp_isBgt,bool temp_isBeq,bool temp_isDiv,bool temp_isMul,bool temp_isUbranch,bool temp_isCall,bool temp_isCmp,bool temp_isRet,bool temp_isNot, bool temp_isOr, bool temp_isSt,bool temp_isLd, bool temp_isAsr,bool temp_isLsr,bool temp_isLsl,bool temp_isMod,bool temp_isWb, bool temp_branchTarget){
+	unsigned int temp_PC = if_of.PC.Read();
+	unsigned int temp_instruction_word = if_of.instruction_word.Read();
+
+	unsigned int temp_imm = inst_bitset(temp_instruction_word, 1, 16);
+	unsigned int temp_u = inst_bitset(temp_instruction_word, 17, 17);
+	unsigned int temp_h = inst_bitset(temp_instruction_word, 18, 18);
+	unsigned int temp_immx;
+
+	if (temp_u == 0 && temp_h == 0){
+		if (inst_bitset(temp_instruction_word, 16, 16) == 1){
+			temp_immx = 0xffff0000 | temp_imm;
+		}
+		else{
+			temp_immx = temp_imm;
+		}
+		//pprint(2)<<"Immediate is "<<dec<<temp_immx<<" (0x"<<hex<<temp_immx<<")"<<endl;
+	}
+	else if (temp_u == 1){
+		temp_immx = temp_imm;
+		//pprint(2)<<"Immediate is "<<dec<<temp_immx<<" (0x"<<hex<<temp_immx<<") and is Unsigned"<<endl;
+	}
+	else{
+		temp_immx = temp_imm<<16;
+		//pprint(2)<<"Immediate is "<<dec<<temp_immx<<" (0x"<<hex<<temp_immx<<") ans is High"<<endl;
+	}
+
+	unsigned int temp_rd = inst_bitset(temp_instruction_word, 23,26);
+	unsigned int temp_rs1 = inst_bitset(temp_instruction_word, 19,22);
+	unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
+
+	//pprint(2)<<endl<<"rd: R"<<dec<<temp_rd<<", rs1: R"<<dec<<temp_rs1<<", rs2: R"<<dec<<temp_rs2<<endl;
+	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVOr || temp_isVMov2 || temp_isVSt || temp_isVLd;
+	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVOr || temp_isVMov1;
+	
+	if(op1check){
+		uint64 temp_operand1= V[temp_rs1]; // for vector instruction
+		fprint(1) << ";"b<<vectorstring(temp_ts1)<<" =0x"; // same as register string
+	}else{
+		unsigned int temp_operand1;
+		temp_operand1 = R[temp_rs1];
+		//pprint(2)<<"Operand1: "<<dec<<temp_operand1<<" (Read from rs1)"<<endl;
+		fprint(1)<<"; "<<registerstring(temp_rs1)<<" = 0x";
+	}
+	fprint(1)<<hex<<temp_operand1;
+	if(temp_isVSt){
+		uint64 temp_operand2;
+		temp_operand2 = V[temp_rd];
+	}
+	else{
+		if(op2check){
+			uint64 temp_operand2 = V[temp_rs2]; // for vector instruction
+			if(!temp_isImmediate){
+				fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
+			}
+		}else{
+			unsigned int temp_operand2;
+			temp_operand2 = R[temp_rs2];
+			//pprint(2)<<"Operand2: "<<dec<<temp_operand2<<" (Read from rs2)"<<endl;
+			if (!temp_isImmediate){
+				fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
+			}
+		}
+		
+	}
+	if (!temp_isImmediate){
+		fprint(1)<<hex<<temp_operand2;
+	}
+	else{
+		fprint(1)<<"; imm = 0x"<<hex<<temp_immx;
+	}
+
+	if(!op1check) unsigned int temp_A = temp_operand1;
+	else uint64 temp_A = temp_operand1;
+	//pprint(2)<<"A: "<<dec<<temp_A<<" (operand1)"<<endl;
+
+	if (temp_isImmediate){
+		unsigned int temp_B;
+		temp_B = temp_immx;
+		//pprint(2)<<"B: "<<dec<<temp_B<<" (immx)"<<endl;
+
+	}
+	else {
+		if(op2check) uint64 temp_B = temp_operand2;
+		else unsigned int temp_B = temp_operand2;
+		//pprint(2)<<"B: "<<dec<<temp_B<<" (operand2)"<<endl;
+	}
+	of_ex.PC.Write(temp_PC);
+	of_ex.instruction_word.Write(temp_instruction_word);
+
+	of_ex.branchTarget.Write(temp_branchTarget);
+
+	of_ex.A.Write(temp_A);
+	of_ex.B.Write(temp_B);
+	of_ex.operand2.Write(temp_operand2);
+
+	of_ex.isSt.Write(temp_isSt);
+	of_ex.isLd.Write(temp_isLd);
+	of_ex.isBeq.Write(temp_isBeq);
+	of_ex.isBgt.Write(temp_isBgt);
+	of_ex.isRet.Write(temp_isRet);
+	of_ex.isImmediate.Write(temp_isImmediate);
+	of_ex.isWb.Write(temp_isWb);
+	of_ex.isUbranch.Write(temp_isUbranch);
+	of_ex.isCall.Write(temp_isCall);
+	of_ex.isAdd.Write(temp_isAdd);
+	of_ex.isSub.Write(temp_isSub);
+	of_ex.isCmp.Write(temp_isCmp);
+	of_ex.isMul.Write(temp_isMul);
+	of_ex.isDiv.Write(temp_isDiv);
+	of_ex.isMod.Write(temp_isMod);
+	of_ex.isLsl.Write(temp_isLsl);
+	of_ex.isLsr.Write(temp_isLsr);
+	of_ex.isAsr.Write(temp_isAsr);
+	of_ex.isOr.Write(temp_isOr);
+	of_ex.isAnd.Write(temp_isAnd);
+	of_ex.isNot.Write(temp_isNot);
+	of_ex.isMov.Write(temp_isMov);
+	// .Write in OF stage for vector operations
+	of_ex.temp_isVMod.Write(temp_isVMod);
+	of_ex.temp_isVSt.Write(temp_isVSt);
+	of_ex.temp_isVLd.Write(temp_isVLd);
+	of_ex.temp_isVOr.Write(temp_isVOr);
+	of_ex.temp_isVAnd.Write(temp_isVAnd);
+	of_ex.temp_isVDiv.Write(temp_isVDiv);
+	of_ex.temp_isVMul.Write(temp_isVMul);
+	of_ex.temp_isVSub.Write(temp_isVSub);
+	of_ex.temp_isVMov1.Write(temp_isVMov1);
+	of_ex.temp_isVMov2.Write(temp_isVMov2);
+	of_ex.temp_isVAdd.Write(temp_isVAdd);
+
+	of_ex.ForwardBubble(bubble_inst);
+
+}
+
+void Core::executeV(){
+	bool bubble_inst = of_ex.bubble.Read();
+	unsigned int temp_PC = of_ex.PC.Read();
+	unsigned int temp_instruction_word = of_ex.instruction_word.Read();
+
+	unsigned int temp_branchTarget = of_ex.branchTarget.Read();
+
+	uint64 temp_A = of_ex.A.Read();
+	uint64 temp_B = of_ex.B.Read();
+	uint64 temp_operand2 = of_ex.operand2.Read();
+
+	bool temp_isSt = of_ex.isSt.Read();
+	bool temp_isLd = of_ex.isLd.Read();
+	bool temp_isBeq = of_ex.isBeq.Read();
+	bool temp_isBgt = of_ex.isBgt.Read();
+	bool temp_isRet = of_ex.isRet.Read();
+	bool temp_isImmediate = of_ex.isImmediate.Read();
+	bool temp_isWb = of_ex.isWb.Read();
+	bool temp_isUbranch = of_ex.isUbranch.Read();
+	bool temp_isCall = of_ex.isCall.Read();
+	bool temp_isAdd = of_ex.isAdd.Read();
+	bool temp_isSub = of_ex.isSub.Read();
+	bool temp_isCmp = of_ex.isCmp.Read();
+	bool temp_isMul = of_ex.isMul.Read();
+	bool temp_isDiv = of_ex.isDiv.Read();
+	bool temp_isMod = of_ex.isMod.Read();
+	bool temp_isLsl = of_ex.isLsl.Read();
+	bool temp_isLsr = of_ex.isLsr.Read();
+	bool temp_isAsr = of_ex.isAsr.Read();
+	bool temp_isOr = of_ex.isOr.Read();
+	bool temp_isAnd = of_ex.isAnd.Read();
+	bool temp_isNot = of_ex.isNot.Read();
+	bool temp_isMov = of_ex.isMov.Read();
+	// bools for new vector instructions
+	bool temp_isVAdd = of_ex.isVAdd.Read();
+	bool temp_isVSub = of_ex.isVSub.Read();
+	bool temp_isVMov1 = of_ex.isVMov1.Read();
+	bool temp_isVMov2 = of_ex.isVMov2.Read();
+	bool temp_isVMul = of_ex.isVMul.Read();
+	bool temp_isVDiv = of_ex.isVDiv.Read();
+	bool temp_isVAnd = of_ex.isVAdd.Read();
+	bool temp_isVMod = of_ex.isVMod.Read();
+	bool temp_isVOr = of_ex.isVOr.Read();
+	bool temp_isVLd = of_ex.isLd.Read();
+	bool temp_isVSt = of_ex.isVSt.Read();
+	if(temp_isImmediate){
+		unsigned short temp = (unsigned short)temp_B;
+		temp_B = ((((((temp_B << 16) | temp) << 16) | temp) <<16) | temp);
+	}
+
+	uint64 temp_aluResult = 0;
+	if(temp_isVAdd){
+		unsigned short A1 = (unsigned short)(temp_A & 0x1111000000000000) >> 48;
+		unsigned short B1 = (unsigned short)(temp_B & 0x1111000000000000) >> 48;
+		temp_aluResult = (temp_aluResult | (A1+B1)) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000111100000000) >> 32;
+		B1 = (unsigned short)(temp_B & 0x0000111100000000) >> 32;
+		temp_aluResult = (temp_aluResult | (A1+B1)) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
+		B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+		temp_aluResult = (temp_aluResult | (A1+B1)) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000000001111);
+		B1 = (unsigned short)(temp_B & 0x0000000000001111);
+		temp_aluResult = (temp_aluResult | (A1+B1));
+	}
+	if(temp_isVSub){
+		unsigned short A1 = (unsigned short)(temp_A & 0x1111000000000000) >> 48;
+		unsigned short B1 = (unsigned short)(temp_B & 0x1111000000000000) >> 48;
+		temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000111100000000) >> 32;
+		B1 = (unsigned short)(temp_B & 0x0000111100000000) >> 32;
+		temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
+		B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+		temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000000001111);
+		B1 = (unsigned short)(temp_B & 0x0000000000001111);
+		temp_aluResult = (temp_aluResult | (A1+(~B1)+1));
+	}
+	if(temp_isVMul){
+		unsigned short A1 = (unsigned short)(temp_A & 0x1111000000000000) >> 48;
+		unsigned short B1 = (unsigned short)(temp_B & 0x1111000000000000) >> 48;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000111100000000) >> 32;
+		B1 = (unsigned short)(temp_B & 0x0000111100000000) >> 32;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
+		B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000000001111);
+		B1 = (unsigned short)(temp_B & 0x0000000000001111);
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) );
+	}
+	if(temp_isVDiv){
+		unsigned short A1 = (unsigned short)(temp_A & 0x1111000000000000) >> 48;
+		unsigned short B1 = (unsigned short)(temp_B & 0x1111000000000000) >> 48;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000111100000000) >> 32;
+		B1 = (unsigned short)(temp_B & 0x0000111100000000) >> 32;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
+		B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000000001111);
+		B1 = (unsigned short)(temp_B & 0x0000000000001111);
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) );
+	}
+	if(temp_isVMod){
+		unsigned short A1 = (unsigned short)(temp_A & 0x1111000000000000) >> 48;
+		unsigned short B1 = (unsigned short)(temp_B & 0x1111000000000000) >> 48;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000111100000000) >> 32;
+		B1 = (unsigned short)(temp_B & 0x0000111100000000) >> 32;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
+		B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
+		A1 = (unsigned short)(temp_A & 0x0000000000001111);
+		B1 = (unsigned short)(temp_B & 0x0000000000001111);
+		temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) );
+	}
+	if(temp_isVOr){
+		temp_aluResult = temp_A | temp_B;
+	}
+	if(temp_isVAnd){
+		temp_aluResult = temp_A & temp_B;
+	}
+}
 //executes the ALU operation based on ALUop
 void Core::execute() {
 	//pprint(2)<<endl<<"!--------- EXECUTE ---------!"<<endl<<endl;
@@ -824,7 +1117,18 @@ void Core::execute() {
 	bool temp_isAnd = of_ex.isAnd.Read();
 	bool temp_isNot = of_ex.isNot.Read();
 	bool temp_isMov = of_ex.isMov.Read();
-
+	// bools for new vector instructions
+	bool temp_isVAdd = of_ex.isVAdd.Read();
+	bool temp_isVSub = of_ex.isVSub.Read();
+	bool temp_isVMov1 = of_ex.isVMov1.Read();
+	bool temp_isVMov2 = of_ex.isVMov2.Read();
+	bool temp_isVMul = of_ex.isVMul.Read();
+	bool temp_isVDiv = of_ex.isVDiv.Read();
+	bool temp_isVAnd = of_ex.isVAdd.Read();
+	bool temp_isVMod = of_ex.isVMod.Read();
+	bool temp_isVOr = of_ex.isVOr.Read();
+	bool temp_isVLd = of_ex.isLd.Read();
+	bool temp_isVSt = of_ex.isVSt.Read();
 	//////////   Branch Unit  ///////////
 	//pprint(2)<<"*** Branch Unit"<<endl;
 	if (temp_isRet){
@@ -1601,6 +1905,14 @@ string Core::registerstring(unsigned int a){
 		ss<<"ra";
 	}
 
+	return ss.str();
+}
+
+string Core::vectorstring(unsigned int a){
+	stringstream ss;
+	if (a >= 0 && a <= 15){
+		ss<<"v"<<dec<<a;
+	}
 	return ss.str();
 }
 
