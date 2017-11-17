@@ -206,7 +206,7 @@ void Core::run_simplesim(){
 		write_back();
 		fetch_end();
 
-		isDataDependency = detect_data_dependency();
+		isDataDependency = detect_data_dependency() || detect_data_dependencyV();
 		isControlDependency = detect_control_dependency();
 
 		if (!isDataDependency && !isControlDependency){
@@ -839,142 +839,6 @@ void Core::decode() {
 	of_ex.ForwardBubble(bubble_inst);
 
 }
-/*
-void Core::decoderV(bool temp_isVAdd,bool temp_isVSub,bool temp_isVMov1,bool temp_isVMov2,bool temp_isVDiv,bool temp_isVMul,bool temp_isVSt,bool temp_isVLd,bool temp_isVOr,bool temp_isVAnd,bool temp_isVMod,bool temp_isImmediate,bool temp_isAnd,bool temp_isAdd,bool temp_isSub,bool temp_isBgt,bool temp_isBeq,bool temp_isDiv,bool temp_isMul,bool temp_isUbranch,bool temp_isCall,bool temp_isCmp,bool temp_isRet,bool temp_isNot, bool temp_isOr, bool temp_isSt,bool temp_isLd, bool temp_isAsr,bool temp_isLsr,bool temp_isLsl,bool temp_isMod,bool temp_isWb, bool temp_branchTarget){
-	unsigned int temp_PC = if_of.PC.Read();
-	unsigned int temp_instruction_word = if_of.instruction_word.Read();
-
-	unsigned int temp_imm = inst_bitset(temp_instruction_word, 1, 16);
-	unsigned int temp_u = inst_bitset(temp_instruction_word, 17, 17);
-	unsigned int temp_h = inst_bitset(temp_instruction_word, 18, 18);
-	unsigned int temp_immx;
-
-	if (temp_u == 0 && temp_h == 0){
-		if (inst_bitset(temp_instruction_word, 16, 16) == 1){
-			temp_immx = 0xffff0000 | temp_imm;
-		}
-		else{
-			temp_immx = temp_imm;
-		}
-		//pprint(2)<<"Immediate is "<<dec<<temp_immx<<" (0x"<<hex<<temp_immx<<")"<<endl;
-	}
-	else if (temp_u == 1){
-		temp_immx = temp_imm;
-		//pprint(2)<<"Immediate is "<<dec<<temp_immx<<" (0x"<<hex<<temp_immx<<") and is Unsigned"<<endl;
-	}
-	else{
-		temp_immx = temp_imm<<16;
-		//pprint(2)<<"Immediate is "<<dec<<temp_immx<<" (0x"<<hex<<temp_immx<<") ans is High"<<endl;
-	}
-
-	unsigned int temp_rd = inst_bitset(temp_instruction_word, 23,26);
-	unsigned int temp_rs1 = inst_bitset(temp_instruction_word, 19,22);
-	unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
-
-	//pprint(2)<<endl<<"rd: R"<<dec<<temp_rd<<", rs1: R"<<dec<<temp_rs1<<", rs2: R"<<dec<<temp_rs2<<endl;
-	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVOr || temp_isVMov2 || temp_isVSt || temp_isVLd;
-	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVOr || temp_isVMov1;
-	
-	if(op1check){
-		uint64 temp_operand1= V[temp_rs1]; // for vector instruction
-		fprint(1) << ";"b<<vectorstring(temp_ts1)<<" =0x"; // same as register string
-	}else{
-		unsigned int temp_operand1;
-		temp_operand1 = R[temp_rs1];
-		//pprint(2)<<"Operand1: "<<dec<<temp_operand1<<" (Read from rs1)"<<endl;
-		fprint(1)<<"; "<<registerstring(temp_rs1)<<" = 0x";
-	}
-	fprint(1)<<hex<<temp_operand1;
-	if(temp_isVSt){
-		uint64 temp_operand2;
-		temp_operand2 = V[temp_rd];
-	}
-	else{
-		if(op2check){
-			uint64 temp_operand2 = V[temp_rs2]; // for vector instruction
-			if(!temp_isImmediate){
-				fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
-			}
-		}else{
-			unsigned int temp_operand2;
-			temp_operand2 = R[temp_rs2];
-			//pprint(2)<<"Operand2: "<<dec<<temp_operand2<<" (Read from rs2)"<<endl;
-			if (!temp_isImmediate){
-				fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
-			}
-		}
-		
-	}
-	if (!temp_isImmediate){
-		fprint(1)<<hex<<temp_operand2;
-	}
-	else{
-		fprint(1)<<"; imm = 0x"<<hex<<temp_immx;
-	}
-
-	if(!op1check) unsigned int temp_A = temp_operand1;
-	else uint64 temp_A = temp_operand1;
-	//pprint(2)<<"A: "<<dec<<temp_A<<" (operand1)"<<endl;
-
-	if (temp_isImmediate){
-		unsigned int temp_B;
-		temp_B = temp_immx;
-		//pprint(2)<<"B: "<<dec<<temp_B<<" (immx)"<<endl;
-
-	}
-	else {
-		if(op2check) uint64 temp_B = temp_operand2;
-		else unsigned int temp_B = temp_operand2;
-		//pprint(2)<<"B: "<<dec<<temp_B<<" (operand2)"<<endl;
-	}
-	of_ex.PC.Write(temp_PC);
-	of_ex.instruction_word.Write(temp_instruction_word);
-
-	of_ex.branchTarget.Write(temp_branchTarget);
-
-	of_ex.A.Write(temp_A);
-	of_ex.B.Write(temp_B);
-	of_ex.operand2.Write(temp_operand2);
-
-	of_ex.isSt.Write(temp_isSt);
-	of_ex.isLd.Write(temp_isLd);
-	of_ex.isBeq.Write(temp_isBeq);
-	of_ex.isBgt.Write(temp_isBgt);
-	of_ex.isRet.Write(temp_isRet);
-	of_ex.isImmediate.Write(temp_isImmediate);
-	of_ex.isWb.Write(temp_isWb);
-	of_ex.isUbranch.Write(temp_isUbranch);
-	of_ex.isCall.Write(temp_isCall);
-	of_ex.isAdd.Write(temp_isAdd);
-	of_ex.isSub.Write(temp_isSub);
-	of_ex.isCmp.Write(temp_isCmp);
-	of_ex.isMul.Write(temp_isMul);
-	of_ex.isDiv.Write(temp_isDiv);
-	of_ex.isMod.Write(temp_isMod);
-	of_ex.isLsl.Write(temp_isLsl);
-	of_ex.isLsr.Write(temp_isLsr);
-	of_ex.isAsr.Write(temp_isAsr);
-	of_ex.isOr.Write(temp_isOr);
-	of_ex.isAnd.Write(temp_isAnd);
-	of_ex.isNot.Write(temp_isNot);
-	of_ex.isMov.Write(temp_isMov);
-	// .Write in OF stage for vector operations
-	of_ex.isVMod.Write(temp_isVMod);
-	of_ex.isVSt.Write(temp_isVSt);
-	of_ex.isVLd.Write(temp_isVLd);
-	of_ex.isVOr.Write(temp_isVOr);
-	of_ex.isVAnd.Write(temp_isVAnd);
-	of_ex.isVDiv.Write(temp_isVDiv);
-	of_ex.isVMul.Write(temp_isVMul);
-	of_ex.isVSub.Write(temp_isVSub);
-	of_ex.isVMov1.Write(temp_isVMov1);
-	of_ex.isVMov2.Write(temp_isVMov2);
-	of_ex.isVAdd.Write(temp_isVAdd);
-
-	of_ex.ForwardBubble(bubble_inst);
-
-}
-*/
 
 //executes the ALU operation based on ALUop
 void Core::execute() {
@@ -1785,6 +1649,13 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 	return false;
 }
+bool Core::check_data_conflictV(){
+	unsigned int A_instruction_word = A.instruction_word.Read();
+	unsigned int B_instruction_word = B.instruction_word.Read();
+	bool A_bubble_inst = A.bubble.Read();
+	bool B_bubble_inst = B.bubble.Read();
+
+}
 
 bool Core::detect_data_dependency(){
 
@@ -1808,7 +1679,18 @@ bool Core::detect_data_dependency(){
 	return isDataDependency;
 
 }
-
+bool Core::detect_data_dependencyV(){
+	bool isDataDependency = false;
+	if(pipeline){
+		if(check_data_conflictV(if_of, of_ex)){
+			isDataDependency = true;
+		}else if(check_data_conflictV(if_of, ex_ma)){
+			isDataDependency = true;
+		}else if(check_data_conflictV(is_of, ma_rw)){
+			isDataDependency = true;
+		}
+	}
+}
 bool Core::detect_control_dependency(){
 
 	return (pipeline && isBranchTaken);
