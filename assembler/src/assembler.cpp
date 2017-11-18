@@ -363,9 +363,8 @@ void Assembler::initOpcodes() {
     opcodes["vdiv"] = VDIV; //26
     opcodes["vmod"] = VMOD; //27
     opcodes["vand"] = VAND; //28
-    opcodes["vor"] = VOR; //29
-    opcodes["vld"] = VLD; //30
-    opcodes["vst"] = VST; //31
+    opcodes["vld"] = VLD; //29
+    opcodes["vst"] = VST; //30
     opcodes[".print"] = NOP; //Nullyfy the .print macro for now.
 }
 
@@ -449,7 +448,7 @@ void Assembler::isValid(Opcode opcode, char reg_vec, int opNum) {
         return;
     }
 
-    if(opcode > 20 && opcode < 32){
+    if(opcode > 20 && opcode < 31){
         // Vector instruction
         if(reg_vec!='v'){
             // Should be V

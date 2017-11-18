@@ -70,9 +70,8 @@ enum Opcode {
     VDIV,   //26
     VMOD,   //27
     VAND,   //28
-    VOR,    //29
-    VLD,    //30
-    VST,    //31
+    VLD,    //29
+    VST,    //30
     END
 };
 

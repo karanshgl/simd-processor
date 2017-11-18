@@ -19,7 +19,7 @@
 
 #include "PipelineRegister.h"
 
-PipelineRegister::PipelineRegister(bool pipe): bubble(pipe), PC(pipe), instruction_word(pipe), branchTarget(pipe), A(pipe), B(pipe), operand2(pipe), aluResult(pipe), ldResult(pipe), v_A(pipe), v_B(pipe), v_operand2(pipe), v_aluresult(pipe), v_ldResult(pipe),	isSt(pipe), isLd(pipe), isBeq(pipe), isBgt(pipe), isRet(pipe), isImmediate(pipe), isWb(pipe), isUbranch(pipe), isCall(pipe), isAdd(pipe), isSub(pipe), isCmp(pipe), isMul(pipe), isDiv(pipe), isMod(pipe), isLsl(pipe), isLsr(pipe), isAsr(pipe), isOr(pipe), isAnd(pipe), isNot(pipe), isMov(pipe), isVMov1(pipe), isVMov2(pipe), isVAdd(pipe), isVSub(pipe), isVMul(pipe), isVDiv(pipe), isVMod(pipe), isVAnd(pipe), isVOr(pipe), isVLd(pipe), isVSt(pipe) {}
+PipelineRegister::PipelineRegister(bool pipe): bubble(pipe), PC(pipe), instruction_word(pipe), branchTarget(pipe), A(pipe), B(pipe), operand2(pipe), aluResult(pipe), ldResult(pipe), v_A(pipe), v_B(pipe), v_operand2(pipe), v_aluresult(pipe), v_ldResult(pipe),	isSt(pipe), isLd(pipe), isBeq(pipe), isBgt(pipe), isRet(pipe), isImmediate(pipe), isWb(pipe), isUbranch(pipe), isCall(pipe), isAdd(pipe), isSub(pipe), isCmp(pipe), isMul(pipe), isDiv(pipe), isMod(pipe), isLsl(pipe), isLsr(pipe), isAsr(pipe), isOr(pipe), isAnd(pipe), isNot(pipe), isMov(pipe), isVMov1(pipe), isVMov2(pipe), isVAdd(pipe), isVSub(pipe), isVMul(pipe), isVDiv(pipe), isVMod(pipe), isVAnd(pipe), isVLd(pipe), isVSt(pipe) {}
 
 void PipelineRegister::WriteBubble(bool to_bubble) {
 

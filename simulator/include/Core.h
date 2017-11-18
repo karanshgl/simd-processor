@@ -72,6 +72,7 @@ class Core
         unsigned int R[16];  
         uint64 V[16];	// Vector Registers      
         bool eq, gt;
+        bool temp_isV;
         bool isBranchTaken;
         unsigned int branchPC;
 
@@ -84,6 +85,9 @@ class Core
 
 		bool detect_data_dependency();
 		bool detect_control_dependency();
+		bool detect_data_dependencyV();
+		bool check_data_conflictV();
+
 
 		//Disassemble encoded instruction to instruction string
 		std::string disassemble (unsigned int inst_word);

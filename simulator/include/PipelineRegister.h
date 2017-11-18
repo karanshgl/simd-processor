@@ -21,8 +21,8 @@
 #define PIPELINE_REGISTER_H
 
 #include "Register.h"
-
 typedef unsigned long long int uint64;
+
 
 class PipelineRegister {
 public:
@@ -31,16 +31,11 @@ public:
 	Register<unsigned int> PC;
 	Register<unsigned int> instruction_word;
 	Register<unsigned int> branchTarget;
-	Register<unsigned int> A;
-	Register<unsigned int> B;
-	Register<unsigned int> operand2;
-	Register<unsigned int> aluResult;
-	Register<unsigned int> ldResult;
-	Register<uint64> v_A;
-	Register<uint64> v_B;
-	Register<uint64> v_operand2;
-	Register<uint64> v_aluresult;
-	Register<uint64> v_ldResult;
+	Register<uint64> A;
+	Register<uint64> B;
+	Register<uint64> operand2;
+	Register<uint64> aluResult;
+	Register<uint64> ldResult;
 
 	Register<bool> isSt;
 	Register<bool> isLd;
@@ -72,7 +67,6 @@ public:
 	Register<bool> isVDiv;
 	Register<bool> isVMod;
 	Register<bool> isVAnd;
-	Register<bool> isVOr;
 	Register<bool> isVLd;
 	Register<bool> isVSt;
 public:
