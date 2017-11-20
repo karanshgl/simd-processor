@@ -1293,8 +1293,8 @@ void Core::write_back() {
 	unsigned int temp_PC = ma_rw.PC.Read();
 	unsigned int temp_instruction_word = ma_rw.instruction_word.Read();
 
-	unsigned int temp_ldResult = ma_rw.ldResult.Read();
-	unsigned int temp_aluResult = ma_rw.aluResult.Read();
+	uint64 temp_ldResult = ma_rw.ldResult.Read();
+	uint64 temp_aluResult = ma_rw.aluResult.Read();
 
 	bool temp_isSt = ma_rw.isSt.Read();
 	bool temp_isLd = ma_rw.isLd.Read();
@@ -1330,39 +1330,53 @@ void Core::write_back() {
 	bool temp_isVLd = ma_rw.isLd.Read();
 	bool temp_isVSt = ma_rw.isVSt.Read();
 
-	unsigned int temp_result;
-	unsigned int temp_addr;
+	uint64 temp_result;
+	uint64 temp_addr;
 
 	if (temp_isWb){
 
 		//pprint(2)<<"Exceuting Instruction 0x"<<hex<<temp_instruction_word<<" with PC 0x"<<temp_PC<<endl;
+		if(!temp_isV){
+			temp_result = (unsigned int)temp_result;
+			temp_ldResult = (unsigned int) temp_ldResult;
+			if (temp_isLd){
+				temp_result = temp_ldResult;
+				//pprint(2)<<"Writing data "<<dec<<temp_result;
+				//pprint(2)<<" (ldResult)";
+			}
+			else if (temp_isCall){
+				temp_result = temp_PC + 4;
+				//pprint(2)<<"Writing data "<<dec<<temp_result;
+				//pprint(2)<<" (PC + 4)";
+			}
+			else {
+				temp_result = temp_aluResult;
+				//pprint(2)<<"Writing data "<<dec<<temp_result;
+				//pprint(2)<<" (aluResult)";
+			}
 
-		if (temp_isLd){
-			temp_result = temp_ldResult;
-			//pprint(2)<<"Writing data "<<dec<<temp_result;
-			//pprint(2)<<" (ldResult)";
-		}
-		else if (temp_isCall){
-			temp_result = temp_PC + 4;
-			//pprint(2)<<"Writing data "<<dec<<temp_result;
-			//pprint(2)<<" (PC + 4)";
-		}
-		else {
-			temp_result = temp_aluResult;
-			//pprint(2)<<"Writing data "<<dec<<temp_result;
-			//pprint(2)<<" (aluResult)";
-		}
+			if (temp_isCall){
+				temp_addr = 15;
+			}
+			else {
+				temp_addr = inst_bitset(temp_instruction_word,23,26);
+			}
 
-		if (temp_isCall){
-			temp_addr = 15;
+			//pprint(2)<<" to register R"<<dec<<temp_addr<<endl;
+			R[temp_addr] = temp_result;
+			fprint(1)<<"; "<<registerstring(temp_addr)<<" = 0x"<<hex<<temp_result;
+		}else{
+			if(temp_isVLd){
+				temp_result = temp_ldResult;
+			}else{
+				temp_result = temp_aluResult;
+			}
+			if(!temp_isCall){
+				temp_addr = inst_bitset(temp_instruction_word, 23, 26);
+			}
+			V[temp_addr] = temp_result;
+			fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
 		}
-		else {
-			temp_addr = inst_bitset(temp_instruction_word,23,26);
-		}
-
-		//pprint(2)<<" to register R"<<dec<<temp_addr<<endl;
-		R[temp_addr] = temp_result;
-		fprint(1)<<"; "<<registerstring(temp_addr)<<" = 0x"<<hex<<temp_result;
 
 	}
 	else {
@@ -1624,6 +1638,57 @@ bool Core::check_data_conflictV(){
 	unsigned int B_instruction_word = B.instruction_word.Read();
 	bool A_bubble_inst = A.bubble.Read();
 	bool B_bubble_inst = B.bubble.Read();
+	unsigned int A_opcode1 = inst_bitset(A_instruction_word, 28, 28);
+	unsigned int A_opcode2 = inst_bitset(A_instruction_word, 29, 29);
+	unsigned int A_opcode3 = inst_bitset(A_instruction_word, 30, 30);
+	unsigned int A_opcode4 = inst_bitset(A_instruction_word, 31, 31);
+	unsigned int A_opcode5 = inst_bitset(A_instruction_word, 32, 32);
+	// B opcodes
+	unsigned int B_opcode1 = inst_bitset(B_instruction_word, 28, 28);
+	unsigned int B_opcode2 = inst_bitset(B_instruction_word, 29, 29);
+	unsigned int B_opcode3 = inst_bitset(B_instruction_word, 30, 30);
+	unsigned int B_opcode4 = inst_bitset(B_instruction_word, 31, 31);
+	unsigned int B_opcode5 = inst_bitset(B_instruction_word, 32, 32);
+
+	unsigned int A_rs1 = inst_bitset(A_instruction_word, 19,22);
+	unsigned int A_rs2 = inst_bitset(A_instruction_word, 15,18);
+	unsigned int A_rd = inst_bitset(A_instruction_word, 23,26);
+
+	unsigned int B_rd = inst_bitset(B_instruction_word, 23,26);
+
+	unsigned int dest = B_rd;
+
+	unsigned int src1 = A_rs1;
+	unsigned int src2 = A_rs2;
+
+	if (/* vstore */){
+		//A is Vst
+		src2 = A_rd;
+	}
+
+	bool hasSrc1 = true;
+
+	if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 1){
+		//A is Vmov1
+		hasSrc1 = false;
+	}
+	bool hasSrc2 = true;
+	if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1) && (/*not Vst*/)){
+		//A is NOT st
+		if (A_I_bit == 1){
+			hasSrc2 = false;
+		}
+	}
+
+	if (hasSrc1 && (src1 == dest)){
+		return true;
+	}
+
+	if (hasSrc2 && (src2 == dest)){
+		return true;
+	}
+
+	return false;
 
 }
 
