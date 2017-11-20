@@ -1878,6 +1878,97 @@ string Core::disassemble (unsigned int inst_word){
 			inst += ", " + registerstring(rs2);
 		}
 	}
+	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
+		inst = "VMOV1" + modifier + " " + vectorstring(rd) + ", " + registerstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + registerstring(rs2);
+		}
+	}
+
+	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
+		inst = "VMOV2" + modifier + " " + registerstring(rd) + ", " + registerstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + vectorstring(rs2);
+		}
+	}
+
+	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
+		inst = "VADD" + modifier + " " + vectorstring(rd) + ", " + vectorstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + vectorstring(rs2);
+		}
+	}
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
+		inst = "VSUB" + modifier + " " + vectorstring(rd) + ", " + vectorstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + rvectorstring(rs2);
+		}
+	}
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 1){
+		inst = "VMUL" + modifier + " " + vectorstring(rd) + ", " + vectorstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + vectorstring(rs2);
+		}
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
+		inst = "VDIV" + modifier + " " + vectorstring(rd) + ", " + vectorstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + vectorstring(rs2);
+		}
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 1){
+		inst = "VMOD" + modifier + " " + vectorstring(rd) + ", " + vectorstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + vectorstring(rs2);
+		}
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
+		inst = "VAND" + modifier + " " + vectorstring(rd) + ", " + vectorstring(rs1);
+		if (isImmediate){
+			inst += ", " + hexstring(imm);
+		}
+		else {
+			inst += ", " + vectorstring(rs2);
+		}
+	}
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
+		inst = "VLD" + modifier + " " + vectorstring(rd) + ", " + hexstring(imm) + "[" + registerstring(rs1)+ "]";
+	}
+
+
+	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
+		inst = "ST" + modifier + " " + vectorstring(rd) + ", " + hexstring(imm) + "[" + registerstring(rs1)+ "]";
+	}
 	if (opcode5 == 0 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
 		inst = "NOP";
 	}
