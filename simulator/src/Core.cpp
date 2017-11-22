@@ -945,19 +945,13 @@ void Core::execute() {
 
 		// LEFT TO HANDLE MOV INSTRUCTIONS
 		if(temp_isVMov1){
-			cout <<endl;
-			cout <<endl;
-			cout <<endl;
-			cout <<endl;
+			
 			unsigned int temp_B = of_ex.B.Read();
-			cout << "temp_B inside alu "<< temp_B<<endl;
 			temp_aluResult = temp_B;
 			temp_aluResult = temp_aluResult << 32;
 			temp_rs2++;
 			temp_B = R[temp_rs2];
-			cout << "temp_B inside alu "<< temp_B<<endl;
 			temp_aluResult = temp_aluResult | temp_B; // next register value
-			cout << "isnt is vmov1   "<<temp_aluResult <<endl;
 			//exit(-1);
 			temp_rs2--;
 			temp_B = of_ex.B.Read();
@@ -969,26 +963,18 @@ void Core::execute() {
 			temp_aluResult = temp_A + temp_B; // CHECK 
 		}
 		if(temp_isVAdd){
-			cout << "temp_A is    " <<hex <<temp_A <<endl;
-			cout <<"temp_B is     "<<hex<<temp_B <<endl;
-			cout << "HEX  "<<endl;
 			unsigned short A1 = static_cast<uint64>((temp_A & 0xffff000000000000) >> 48);
 			unsigned short B1 = static_cast<uint64>(temp_B & 0xffff000000000000) >> 48;
-			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
 			A1 = (unsigned short)((temp_A & 0x0000ffff00000000) >> 32);
 			B1 = (unsigned short)((temp_B & 0x0000ffff00000000) >> 32);
-			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
 			A1 = (unsigned short)((temp_A & 0x00000000ffff0000) >> 16);
 			B1 = (unsigned short)((temp_B & 0x00000000ffff0000) >> 16);
-			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
 			A1 = (unsigned short)((temp_A & 0x000000000000ffff));
 			B1 = (unsigned short)((temp_B & 0x000000000000ffff));
-			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1));
-			cout <<temp_aluResult <<endl;
 			l = temp_aluResult;
 			//exit(-1);
 		}
@@ -1587,7 +1573,7 @@ bool Core::checkValidPC(unsigned int testPC){
 	}
 	unsigned int testInst = MEM.Read(testPC);
 
-	if (inst_bitset(testInst,28, 32) < 32) {
+	if (inst_bitset(testInst,28, 32) < 31) {
 		return true;
 	}
 
