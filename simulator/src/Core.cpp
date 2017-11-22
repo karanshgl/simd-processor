@@ -733,7 +733,7 @@ void Core::decode() {
 	unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
 
 	//pprint(2)<<endl<<"rd: R"<<dec<<temp_rd<<", rs1: R"<<dec<<temp_rs1<<", rs2: R"<<dec<<temp_rs2<<endl;
-	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2 || temp_isVMov1 || temp_isVSt;
+	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2 || temp_isVMov1;
 	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd;
 	bool rdcheck = temp_isVMov1 ||temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVAnd || temp_isVLd || temp_isVMod;
 	if (temp_isRet){
@@ -928,7 +928,7 @@ void Core::execute() {
 	//pprint(2)<<"*** Branch Unit"<<endl;
 	uint64 temp_A = of_ex.A.Read();
 	uint64 temp_B = of_ex.B.Read();
-	unsigned int temp_operand2 = of_ex.operand2.Read();
+	uint64 temp_operand2 = of_ex.operand2.Read();
 	uint64 temp_aluResult = 0;
 	uint64 l;
 	if(temp_isV){
@@ -962,6 +962,9 @@ void Core::execute() {
 			temp_aluResult = temp_B; // to be rechecked
 		}
 		if(temp_isVLd){
+			temp_aluResult = temp_A + temp_B; // CHECK 
+		}
+		if(temp_isVSt){
 			temp_aluResult = temp_A + temp_B; // CHECK 
 		}
 		if(temp_isVAdd){
@@ -1290,16 +1293,20 @@ void Core::mem_access() {
 		//uint64 temp_mar = ex_ma.aluResult.Read();
 		// HAVE TO CHECK >= 0 CONDITIONS FOR LOADING
 		//uint64 temp_ldResult = MEM.Read(temp_mar);
-		if (temp_mar >= 0 && temp_mar <= MEM_CAPACITY - sizeof(unsigned int)){
+		if (temp_mar >= 0 && temp_mar <= MEM_CAPACITY - sizeof(unsigned int) - 4){
 			temp_ldResult = MEM.Read(temp_mar);
 			cout<<endl;
 			temp_ldResult = temp_ldResult << 32;
 			temp_ldResult += MEM.Read(temp_mar+4);
 		}
 	}else if(temp_isVSt){ // HOW TO WRITE THE VECTOR CORRECTLY
-		unsigned int temp_mar = ex_ma.aluResult.Read();
-		uint64 temp_mdr = ex_ma.operand2.Read();
-		MEM.Write(temp_mar, temp_mdr);
+		if (temp_mar >= 0 && temp_mar <= MEM_CAPACITY - sizeof(unsigned int) - 4){
+			unsigned int first = (unsigned int)(temp_operand2 >> 32);
+			MEM.Write(temp_mar,first);
+			unsigned int second = (unsigned int) temp_operand2;
+			MEM.Write(temp_mar+4,second);
+
+		}
 	}
 	else {
 		//pprint(2)<<"Exceuting Instruction 0x"<<hex<<temp_instruction_word<<" with PC 0x"<<temp_PC<<endl;
