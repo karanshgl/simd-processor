@@ -733,8 +733,8 @@ void Core::decode() {
 	unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
 
 	//pprint(2)<<endl<<"rd: R"<<dec<<temp_rd<<", rs1: R"<<dec<<temp_rs1<<", rs2: R"<<dec<<temp_rs2<<endl;
-	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2 || temp_isVMov1;
-	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd;
+	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2;
+	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2;
 	bool rdcheck = temp_isVMov1 ||temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVAnd || temp_isVLd || temp_isVMod;
 	if (temp_isRet){
 		temp_operand1 = (unsigned int)temp_operand1;
@@ -1456,7 +1456,11 @@ void Core::write_back() {
 				cout << "writing to address  "<< temp_addr <<endl;
 			}
 			//exit(-1);
-			V[temp_addr] = temp_result;
+			if(!temp_isVMov2) V[temp_addr] = temp_result;
+			else{
+				R[temp_addr] = (unsigned int) (temp_result >> 32);
+				R[temp_addr+1] = (unsigned int) temp_result;
+			}
 			//cout << hex << V[temp_addr] << "   "<< temp_addr << endl;
 			//exit(-1);
 			cout << "vector instruction without hex " <<V[temp_addr] << "   "<< temp_addr << endl;
@@ -1990,7 +1994,7 @@ string Core::disassemble (unsigned int inst_word){
 	}
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
-		inst = "VMOV2" + modifier + " " + registerstring(rd) + ", " + registerstring(rs1);
+		inst = "VMOV2" + modifier + " " + registerstring(rd) + ", " + registerstring(rd+1);
 		if (isImmediate){
 			inst += ", " + hexstring(imm);
 		}
