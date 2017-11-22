@@ -665,6 +665,8 @@ void Core::decode() {
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
 		temp_isVLd = true;
 		temp_isV = true;
+		temp_isWb = true;
+
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -731,7 +733,7 @@ void Core::decode() {
 	unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
 
 	//pprint(2)<<endl<<"rd: R"<<dec<<temp_rd<<", rs1: R"<<dec<<temp_rs1<<", rs2: R"<<dec<<temp_rs2<<endl;
-	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2 || temp_isVMov1 || temp_isVSt || temp_isVLd;
+	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2 || temp_isVMov1 || temp_isVSt;
 	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd;
 	bool rdcheck = temp_isVMov1 ||temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVAnd || temp_isVLd || temp_isVMod;
 	if (temp_isRet){
@@ -920,7 +922,7 @@ void Core::execute() {
 	bool temp_isVDiv = of_ex.isVDiv.Read();
 	bool temp_isVAnd = of_ex.isVAnd.Read();
 	bool temp_isVMod = of_ex.isVMod.Read();
-	bool temp_isVLd = of_ex.isLd.Read();
+	bool temp_isVLd = of_ex.isVLd.Read();
 	bool temp_isVSt = of_ex.isVSt.Read();
 	//////////   Branch Unit  ///////////
 	//pprint(2)<<"*** Branch Unit"<<endl;
@@ -1259,7 +1261,7 @@ void Core::mem_access() {
 	bool temp_isVDiv = ex_ma.isVDiv.Read();
 	bool temp_isVAnd = ex_ma.isVAnd.Read();
 	bool temp_isVMod = ex_ma.isVMod.Read();
-	bool temp_isVLd = ex_ma.isLd.Read();
+	bool temp_isVLd = ex_ma.isVLd.Read();
 	bool temp_isVSt = ex_ma.isVSt.Read();
 	
 	uint64 temp_aluResult = ex_ma.aluResult.Read();
@@ -1285,9 +1287,15 @@ void Core::mem_access() {
 			MEM.Write(temp_mar,temp_mdr);
 		}
 	}else if(temp_isVLd){
-		uint64 temp_mar = ex_ma.aluResult.Read();
+		//uint64 temp_mar = ex_ma.aluResult.Read();
 		// HAVE TO CHECK >= 0 CONDITIONS FOR LOADING
-		uint64 temp_ldResult = MEM.Read(temp_mar);
+		//uint64 temp_ldResult = MEM.Read(temp_mar);
+		if (temp_mar >= 0 && temp_mar <= MEM_CAPACITY - sizeof(unsigned int)){
+			temp_ldResult = MEM.Read(temp_mar);
+			cout<<endl;
+			temp_ldResult = temp_ldResult << 32;
+			temp_ldResult += MEM.Read(temp_mar+4);
+		}
 	}else if(temp_isVSt){ // HOW TO WRITE THE VECTOR CORRECTLY
 		unsigned int temp_mar = ex_ma.aluResult.Read();
 		uint64 temp_mdr = ex_ma.operand2.Read();
@@ -1357,7 +1365,6 @@ void Core::write_back() {
 
 	uint64 temp_ldResult = ma_rw.ldResult.Read();
 	uint64 temp_aluResult = ma_rw.aluResult.Read();
-	
 	bool temp_isSt = ma_rw.isSt.Read();
 	bool temp_isLd = ma_rw.isLd.Read();
 	bool temp_isBeq = ma_rw.isBeq.Read();
@@ -1389,8 +1396,9 @@ void Core::write_back() {
 	bool temp_isVDiv = ma_rw.isVDiv.Read();
 	bool temp_isVAnd = ma_rw.isVAnd.Read();
 	bool temp_isVMod = ma_rw.isVMod.Read();
-	bool temp_isVLd = ma_rw.isLd.Read();
+	bool temp_isVLd = ma_rw.isVLd.Read();
 	bool temp_isVSt = ma_rw.isVSt.Read();
+
 	uint64 temp_result;
 	uint64 temp_addr;
 	if (temp_isWb){
@@ -1425,7 +1433,10 @@ void Core::write_back() {
 			//pprint(2)<<" to register R"<<dec<<temp_addr<<endl;
 			R[temp_addr] = temp_result;
 			fprint(1)<<"; "<<registerstring(temp_addr)<<" = 0x"<<hex<<temp_result;
-		}else{
+
+		}
+		else{
+
 			if(temp_isVLd){
 				temp_result = temp_ldResult;
 			}else{
