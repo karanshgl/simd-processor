@@ -18,6 +18,7 @@
  */
 
 #include "Core.h"
+#include <cstdlib>
 
 #define pprint(x) if (pipeline && (debugLevel >= x)) output_file
 #define fprint(x) if (!pipeline && (debugLevel >= x)) output_file
@@ -379,6 +380,7 @@ void Core::decode() {
 	//pprint(2)<<"Control Signals"<<endl;
 	if(opcode5 == 0 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
 		temp_isSt = true;
+		temp_isV = false;
 		//pprint(2)<<"isSt ";
 	}
 	else{
@@ -387,6 +389,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
 		temp_isLd = true;
+		temp_isV = false;
 		//pprint(2)<<"isLd ";
 	}
 	else{
@@ -395,6 +398,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
 		temp_isBeq = true;
+		temp_isV = false;
 		//pprint(2)<<"isBeq ";
 	}
 	else{
@@ -403,6 +407,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 0 && opcode2 == 0 && opcode1 == 1){
 		temp_isBgt = true;
+		temp_isV = false;
 		//pprint(2)<<"isBgt ";
 	}
 	else{
@@ -411,6 +416,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
 		temp_isRet = true;
+		temp_isV = false;
 		//pprint(2)<<"isRet ";
 	}
 	else{
@@ -443,6 +449,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 0 && opcode2 == 1 && opcode1 == 1){
 		temp_isCall = true;
+		temp_isV = false;
 		//pprint(2)<<"isCall ";
 	}
 	else{
@@ -451,10 +458,13 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
 		temp_isAdd = true;
+		cout << "instruction is add "<<endl;
+		temp_isV = false;
 		//pprint(2)<<"isAdd ";
 	}
 	else if(opcode5 == 0 && opcode4 == 1 && opcode3 == 1 && opcode2 == 1){
 		temp_isAdd = true;
+		temp_isV = false;
 		//pprint(2)<<"isAdd ";
 	}
 	else{
@@ -463,6 +473,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 0 && opcode2 == 0 && opcode1 == 1){
 		temp_isSub = true;
+		temp_isV = false;
 		//pprint(2)<<"isSub ";
 	}
 	else{
@@ -471,6 +482,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
 		temp_isCmp = true;
+		temp_isV = false;
 		//pprint(2)<<"isCmp ";
 	}
 	else{
@@ -479,6 +491,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
 		temp_isMul = true;
+		temp_isV = false;
 		//pprint(2)<<"isMul ";
 	}
 	else{
@@ -487,6 +500,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 0 && opcode2 == 1 && opcode1 == 1){
 		temp_isDiv = true;
+		temp_isV = false;
 		//pprint(2)<<"isDiv ";
 	}
 	else{
@@ -495,6 +509,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
 		temp_isMod = true;
+		temp_isV = false;
 		//pprint(2)<<"isMod ";
 	}
 	else{
@@ -503,6 +518,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
 		temp_isLsl = true;
+		temp_isV = false;
 		//pprint(2)<<"isLsl ";
 	}
 	else{
@@ -511,6 +527,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 1){
 		temp_isLsr = true;
+		temp_isV = false;
 		//pprint(2)<<"islsr ";
 	}
 	else{
@@ -519,6 +536,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
 		temp_isAsr = true;
+		temp_isV = false;
 		//pprint(2)<<"isAsr ";
 	}
 	else{
@@ -527,6 +545,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
 		temp_isOr = true;
+		temp_isV = false;
 		//pprint(2)<<"isOr ";
 	}
 	else{
@@ -535,6 +554,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
 		temp_isAnd = true;
+		temp_isV = false;
 		//pprint(2)<<"isAnd ";
 	}
 	else{
@@ -543,6 +563,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
 		temp_isNot = true;
+		temp_isV = false;
 		//pprint(2)<<"isNot ";
 	}
 	else{
@@ -551,6 +572,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 1){
 		temp_isMov = true;
+		temp_isV = false;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -560,6 +582,7 @@ void Core::decode() {
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
 		temp_isVMov1 = true;
 		temp_isV = true;
+		temp_isWb = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -569,6 +592,7 @@ void Core::decode() {
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 0){
 		temp_isVMov2 = true;
 		temp_isV = true;
+		temp_isWb = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -577,6 +601,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 1 && opcode1 == 1){
 		temp_isVAdd = true;
+		temp_isWb = true;
 		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
@@ -586,6 +611,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
 		temp_isVSub = true;
+		temp_isWb = true;
 		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
@@ -596,6 +622,7 @@ void Core::decode() {
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 0 && opcode1 == 1){
 		temp_isVMul = true;
 		temp_isV = true;
+		temp_isWb = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -605,6 +632,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
 		temp_isVDiv = true;
+		temp_isWb = true;
 		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
@@ -615,6 +643,7 @@ void Core::decode() {
 
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 1){
 		temp_isVMod = true;
+		temp_isWb = true;
 		temp_isV = true;
 		//pprint(2)<<"isMov ";
 	}
@@ -626,6 +655,7 @@ void Core::decode() {
 	if(opcode5 == 1 && opcode4 == 1 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
 		temp_isVAnd = true;
 		temp_isV = true;
+		temp_isWb = true;
 		//pprint(2)<<"isMov ";
 	}
 	else{
@@ -694,8 +724,8 @@ void Core::decode() {
 
 	//////////   Reading Register File  ///////////
 	// LEFT THE STORE INSTRUCTION
-	unsigned int temp_operand1;
-	unsigned int temp_operand2;
+	uint64 temp_operand1;
+	uint64 temp_operand2;
 	unsigned int temp_rd = inst_bitset(temp_instruction_word, 23,26);
 	unsigned int temp_rs1 = inst_bitset(temp_instruction_word, 19,22);
 	unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
@@ -705,17 +735,21 @@ void Core::decode() {
 	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd;
 	bool rdcheck = temp_isVMov1 ||temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVAnd || temp_isVLd || temp_isVMod;
 	if (temp_isRet){
+		temp_operand1 = (unsigned int)temp_operand1;
 		temp_operand1 = R[15];
 		//pprint(2)<<"Operand1: "<<dec<<temp_operand1<<" (Read from ra OR R15)"<<endl;
 		fprint(1)<<"; "<<registerstring(15)<<" = 0x";
 	}
 	else{
 		if(op1check){
-			uint64 temp_operand1= V[temp_rs1]; // for vector instruction
+			temp_operand1= V[temp_rs1]; // for vector instruction
+			if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 1 "<<hex << V[temp_rs1] << "    "  <<temp_rs1 <<endl; 
 			fprint(1) << ";"<<vectorstring(temp_rs1)<<" =0x"; // same as register string
 		}else{
-			unsigned int temp_operand1;
+			//unsigned int temp_operand1;
+			temp_operand1 = (unsigned int)temp_operand1;
 			temp_operand1 = R[temp_rs1];
+			cout << "operand 1 is " << temp_operand1<<endl;
 			//pprint(2)<<"Operand1: "<<dec<<temp_operand1<<" (Read from rs1)"<<endl;
 			fprint(1)<<"; "<<registerstring(temp_rs1)<<" = 0x";
 		}
@@ -723,6 +757,7 @@ void Core::decode() {
 	fprint(1)<<hex<<temp_operand1;
 
 	if (temp_isSt){
+		temp_operand2 = (unsigned int)temp_operand2;
 		temp_operand2 = R[temp_rd];
 		//pprint(2)<<"Operand2: "<<dec<<temp_operand2<<" (Read from rd)"<<endl;
 		if (!temp_isImmediate){
@@ -731,22 +766,28 @@ void Core::decode() {
 	}
 	else{
 		if(temp_isVSt){
-			uint64 temp_operand2;
 			temp_operand2 = V[temp_rd];
 			fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
 		}
 		else{
 			if(op2check){
-				uint64 temp_operand2 = V[temp_rs2]; // for vector instruction
+				temp_operand2 = (uint64)temp_operand2;
+				uint64 a = V[temp_rs2];
+				temp_operand2 = a; // for vector instruction
+				if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 2a "<<hex <<temp_operand2 <<"   " <<temp_rs2<<endl;	
 				if(!temp_isImmediate){
 					fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
 				}
 			}else{
-				unsigned int temp_operand2;
+				//unsigned int temp_operand2;
+				temp_operand2 = (unsigned int)temp_operand2;
 				temp_operand2 = R[temp_rs2];
+				if(temp_isVMov1)cout << "temp insssss"<<endl;
+				cout << "operand2 is " << temp_operand2<<endl;
 				//pprint(2)<<"Operand2: "<<dec<<temp_operand2<<" (Read from rs2)"<<endl;
 				if (!temp_isImmediate){
-					fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
+					if(temp_isVMov1) fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
+					else fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
 				}
 			}
 			
@@ -758,7 +799,11 @@ void Core::decode() {
 			fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
 		}*/
 	}
+	cout << "is vector? "<<temp_isV <<endl;
+	cout << "temp_operand1 "<<temp_operand1 <<endl;
+
 	uint64 temp_A = temp_operand1;
+	cout << "temp_A is " << temp_A;
 	uint64 temp_B;
 	if (!temp_isImmediate){
 		fprint(1)<<hex<<temp_operand2;
@@ -776,6 +821,7 @@ void Core::decode() {
 	}
 	else {
 		temp_B = temp_operand2;
+		if(temp_isVMov1) cout << "inside else  "<< temp_B<<endl;
 		//pprint(2)<<"B: "<<dec<<temp_B<<" (operand2)"<<endl;
 	}
 
@@ -899,14 +945,21 @@ void Core::execute() {
 
 		// LEFT TO HANDLE MOV INSTRUCTIONS
 		if(temp_isVMov1){
-			unsigned int temp_B = of_ex.A.Read();
+			cout <<endl;
+			cout <<endl;
+			cout <<endl;
+			cout <<endl;
+			unsigned int temp_B = of_ex.B.Read();
+			cout << "temp_B inside alu "<< temp_B<<endl;
 			temp_aluResult = temp_B;
 			temp_aluResult = temp_aluResult << 32;
 			temp_rs2++;
 			temp_B = R[temp_rs2];
+			cout << "temp_B inside alu "<< temp_B<<endl;
 			temp_aluResult = temp_aluResult | temp_B; // next register value
+			cout << "isnt is vmov1   "<< hex<<temp_aluResult <<endl;
 			temp_rs2--;
-			temp_B = of_ex.A.Read();
+			temp_B = of_ex.B.Read();
 		}
 		if(temp_isVMov2){
 			temp_aluResult = temp_B; // to be rechecked
@@ -915,18 +968,26 @@ void Core::execute() {
 			temp_aluResult = temp_A + temp_B; // CHECK 
 		}
 		if(temp_isVAdd){
-			unsigned short A1 = static_cast<uint64>(temp_A & 0x1111000000000000) >> 48;
+			cout << "temp_A is    " <<temp_A <<endl;
+			cout <<"temp_B is      "<<hex<<temp_B <<endl;
+			cout << "HEX  "<<endl;
+			cout << hex <<((temp_A & 0x1111000000000000))<<endl;
+			unsigned short A1 = static_cast<uint64>((temp_A & 0x1111000000000000) >> 48);
 			unsigned short B1 = static_cast<uint64>(temp_B & 0x1111000000000000) >> 48;
-			temp_aluResult = (temp_aluResult | (A1+B1)) << 16;
-			A1 = static_cast<uint64>(temp_A & 0x0000111100000000) >> 32;
-			B1 = static_cast<uint64>(temp_B & 0x0000111100000000) >> 32;
-			temp_aluResult = (temp_aluResult | (A1+B1)) << 16;
-			A1 = static_cast<uint64>(temp_A & 0x0000000011110000) >>16;
-			B1 = static_cast<uint64>(temp_B & 0x0000000011110000) >>16;
-			temp_aluResult = (temp_aluResult | (A1+B1)) << 16;
-			A1 = static_cast<uint64>(temp_A & 0x0000000000001111);
-			B1 = static_cast<uint64>(temp_B & 0x0000000000001111);
-			temp_aluResult = (temp_aluResult | (A1+B1));
+			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
+			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
+			A1 = (unsigned short)((temp_A & 0x0000111100000000) >> 32);
+			B1 = (unsigned short)((temp_B & 0x0000111100000000) >> 32);
+			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
+			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
+			A1 = (unsigned short)((temp_A & 0x0000000011110000) >> 16);
+			B1 = (unsigned short)((temp_A & 0x0000000011110000) >> 16);
+			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
+			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
+			A1 = (unsigned short)((temp_A & 0x0000000000001111));
+			B1 = (unsigned short)((temp_A & 0x0000000000001111));
+			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
+			temp_aluResult = (temp_aluResult | (uint64)(A1+B1));
 		}
 		if(temp_isVSub){
 			unsigned short A1 = static_cast<uint64>(temp_A & 0x1111000000000000) >> 48;
@@ -1024,7 +1085,11 @@ void Core::execute() {
 
 		if (temp_isAdd){
 			//pprint(2)<<"ADD operation"<<endl;
+			cout << "temp_A is " << temp_A<<endl;
+			cout << "temp_B is "<<temp_B <<endl;
 			temp_aluResult = temp_A + temp_B;
+			cout << "aluResult "<< temp_aluResult <<endl;
+			//exit(-1);
 
 		}
 		if (temp_isSub){
@@ -1338,7 +1403,6 @@ void Core::write_back() {
 
 	uint64 temp_result;
 	uint64 temp_addr;
-
 	if (temp_isWb){
 
 		//pprint(2)<<"Exceuting Instruction 0x"<<hex<<temp_instruction_word<<" with PC 0x"<<temp_PC<<endl;
@@ -1376,12 +1440,24 @@ void Core::write_back() {
 				temp_result = temp_ldResult;
 			}else{
 				temp_result = temp_aluResult;
+				cout << "inside writeback   "<< temp_aluResult<<endl;
 			}
 			if(!temp_isCall){
 				temp_addr = inst_bitset(temp_instruction_word, 23, 26);
+				cout << "writing to address  "<< temp_addr <<endl;
 			}
+			//exit(-1);
 			V[temp_addr] = temp_result;
+			//cout << hex << V[temp_addr] << "   "<< temp_addr << endl;
+			//exit(-1);
+			cout << "vector instruction " <<hex << V[temp_addr] << "   "<< temp_addr << endl;
 			fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
+			if(temp_isVAdd){
+				cout << "temp_result" <<temp_result<<endl;
+				cout << "yeahhh"<<endl;
+				cout << hex << V[temp_addr] << "   "<< temp_addr << endl;
+				exit(-1);
+			}
 		}
 
 	}
@@ -1862,6 +1938,8 @@ string Core::disassemble (unsigned int inst_word){
 		else {
 			inst += ", " + registerstring(rs2);
 		}
+		cout << "regist stirng " << inst <<"     "<< registerstring(rs2)<<endl;
+		//exit(-1);
 	}
 	if (opcode5 == 0 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
 		inst = "LSL" + modifier + " " + registerstring(rd) + ", " + registerstring(rs1);
@@ -1891,12 +1969,12 @@ string Core::disassemble (unsigned int inst_word){
 		}
 	}
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
-		inst = "VMOV1" + modifier + " " + vectorstring(rd) + ", " + registerstring(rs1);
+		inst = "VMOV1" + modifier + " " + vectorstring(rd) + ", ";
 		if (isImmediate){
 			inst += ", " + hexstring(imm);
 		}
 		else {
-			inst += ", " + registerstring(rs2);
+			inst += ", " + vectorstring(rd);
 		}
 	}
 
@@ -2005,6 +2083,9 @@ string Core::disassemble (unsigned int inst_word){
 	if (opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
 		inst = "RET";
 	}
+	cout <<endl;
+	cout << inst << endl;
+	//exit(-1);
 	return inst;
 
 }
