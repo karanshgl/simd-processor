@@ -743,7 +743,7 @@ void Core::decode() {
 	else{
 		if(op1check){
 			temp_operand1= V[temp_rs1]; // for vector instruction
-			if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 1 "<<hex << V[temp_rs1] << "    "  <<temp_rs1 <<endl; 
+			if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 1 "<<temp_operand1<< "    "  <<temp_rs1 <<endl; 
 			fprint(1) << ";"<<vectorstring(temp_rs1)<<" =0x"; // same as register string
 		}else{
 			//unsigned int temp_operand1;
@@ -774,7 +774,7 @@ void Core::decode() {
 				temp_operand2 = (uint64)temp_operand2;
 				uint64 a = V[temp_rs2];
 				temp_operand2 = a; // for vector instruction
-				if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 2a "<<hex <<temp_operand2 <<"   " <<temp_rs2<<endl;	
+				if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 2a " <<temp_operand2 <<"   " <<temp_rs2<<endl;	
 				if(!temp_isImmediate){
 					fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
 				}
@@ -821,7 +821,7 @@ void Core::decode() {
 	}
 	else {
 		temp_B = temp_operand2;
-		if(temp_isVMov1) cout << "inside else  "<< temp_B<<endl;
+		cout << "inside else  "<< temp_B<<endl;
 		//pprint(2)<<"B: "<<dec<<temp_B<<" (operand2)"<<endl;
 	}
 
@@ -918,7 +918,7 @@ void Core::execute() {
 	bool temp_isVMov2 = of_ex.isVMov2.Read();
 	bool temp_isVMul = of_ex.isVMul.Read();
 	bool temp_isVDiv = of_ex.isVDiv.Read();
-	bool temp_isVAnd = of_ex.isVAdd.Read();
+	bool temp_isVAnd = of_ex.isVAnd.Read();
 	bool temp_isVMod = of_ex.isVMod.Read();
 	bool temp_isVLd = of_ex.isLd.Read();
 	bool temp_isVSt = of_ex.isVSt.Read();
@@ -928,7 +928,7 @@ void Core::execute() {
 	uint64 temp_B = of_ex.B.Read();
 	unsigned int temp_operand2 = of_ex.operand2.Read();
 	uint64 temp_aluResult = 0;
-
+	uint64 l;
 	if(temp_isV){
 
 		unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
@@ -957,7 +957,8 @@ void Core::execute() {
 			temp_B = R[temp_rs2];
 			cout << "temp_B inside alu "<< temp_B<<endl;
 			temp_aluResult = temp_aluResult | temp_B; // next register value
-			cout << "isnt is vmov1   "<< hex<<temp_aluResult <<endl;
+			cout << "isnt is vmov1   "<<temp_aluResult <<endl;
+			//exit(-1);
 			temp_rs2--;
 			temp_B = of_ex.B.Read();
 		}
@@ -968,86 +969,91 @@ void Core::execute() {
 			temp_aluResult = temp_A + temp_B; // CHECK 
 		}
 		if(temp_isVAdd){
-			cout << "temp_A is    " <<temp_A <<endl;
-			cout <<"temp_B is      "<<hex<<temp_B <<endl;
+			cout << "temp_A is    " <<hex <<temp_A <<endl;
+			cout <<"temp_B is     "<<hex<<temp_B <<endl;
 			cout << "HEX  "<<endl;
-			cout << hex <<((temp_A & 0x1111000000000000))<<endl;
-			unsigned short A1 = static_cast<uint64>((temp_A & 0x1111000000000000) >> 48);
-			unsigned short B1 = static_cast<uint64>(temp_B & 0x1111000000000000) >> 48;
+			unsigned short A1 = static_cast<uint64>((temp_A & 0xffff000000000000) >> 48);
+			unsigned short B1 = static_cast<uint64>(temp_B & 0xffff000000000000) >> 48;
 			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
-			A1 = (unsigned short)((temp_A & 0x0000111100000000) >> 32);
-			B1 = (unsigned short)((temp_B & 0x0000111100000000) >> 32);
+			A1 = (unsigned short)((temp_A & 0x0000ffff00000000) >> 32);
+			B1 = (unsigned short)((temp_B & 0x0000ffff00000000) >> 32);
 			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
-			A1 = (unsigned short)((temp_A & 0x0000000011110000) >> 16);
-			B1 = (unsigned short)((temp_A & 0x0000000011110000) >> 16);
+			A1 = (unsigned short)((temp_A & 0x00000000ffff0000) >> 16);
+			B1 = (unsigned short)((temp_B & 0x00000000ffff0000) >> 16);
 			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1)) << 16;
-			A1 = (unsigned short)((temp_A & 0x0000000000001111));
-			B1 = (unsigned short)((temp_A & 0x0000000000001111));
+			A1 = (unsigned short)((temp_A & 0x000000000000ffff));
+			B1 = (unsigned short)((temp_B & 0x000000000000ffff));
 			cout <<"A1 " << A1 << " "<< "B1 "<< B1 <<endl;
 			temp_aluResult = (temp_aluResult | (uint64)(A1+B1));
+			cout <<temp_aluResult <<endl;
+			l = temp_aluResult;
+			//exit(-1);
 		}
 		if(temp_isVSub){
-			unsigned short A1 = static_cast<uint64>(temp_A & 0x1111000000000000) >> 48;
-			unsigned short B1 = static_cast<uint64>(temp_B & 0x1111000000000000) >> 48;
+			unsigned short A1 = static_cast<uint64>(temp_A & 0xffff000000000000) >> 48;
+			unsigned short B1 = static_cast<uint64>(temp_B & 0xffff000000000000) >> 48;
 			temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
-			A1 = static_cast<uint64>(temp_A & 0x0000111100000000) >> 32;
-			B1 = static_cast<uint64>(temp_B & 0x0000111100000000) >> 32;
+			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
+			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
-			B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
+			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
 			temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000000001111);
-			B1 = (unsigned short)(temp_B & 0x0000000000001111);
+			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
+			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
 			temp_aluResult = (temp_aluResult | (A1+(~B1)+1));
 		}
 		if(temp_isVMul){
-			unsigned short A1 = static_cast<uint64>(temp_A & 0x1111000000000000) >> 48;
-			unsigned short B1 = static_cast<uint64>(temp_B & 0x1111000000000000) >> 48;
+			unsigned short A1 = static_cast<uint64>(temp_A & 0xffff000000000000) >> 48;
+			unsigned short B1 = static_cast<uint64>(temp_B & 0xffff000000000000) >> 48;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
-			A1 = static_cast<uint64>(temp_A & 0x0000111100000000) >> 32;
-			B1 = static_cast<uint64>(temp_B & 0x0000111100000000) >> 32;
+			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
+			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
-			B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
+			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000000001111);
-			B1 = (unsigned short)(temp_B & 0x0000000000001111);
+			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
+			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) );
 		}
 		if(temp_isVDiv){
-			unsigned short A1 = static_cast<uint64>(temp_A & 0x1111000000000000) >> 48;
-			unsigned short B1 = static_cast<uint64>(temp_B & 0x1111000000000000) >> 48;
+			unsigned short A1 = static_cast<uint64>(temp_A & 0xffff000000000000) >> 48;
+			unsigned short B1 = static_cast<uint64>(temp_B & 0xffff000000000000) >> 48;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
-			A1 = static_cast<uint64>(temp_A & 0x0000111100000000) >> 32;
-			B1 = static_cast<uint64>(temp_B & 0x0000111100000000) >> 32;
+			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
+			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
-			B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
+			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000000001111);
-			B1 = (unsigned short)(temp_B & 0x0000000000001111);
+			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
+			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) );
 		}
 		if(temp_isVMod){
-			unsigned short A1 = static_cast<uint64>(temp_A & 0x1111000000000000) >> 48;
-			unsigned short B1 = static_cast<uint64>(temp_B & 0x1111000000000000) >> 48;
+			unsigned short A1 = static_cast<uint64>(temp_A & 0xffff000000000000) >> 48;
+			unsigned short B1 = static_cast<uint64>(temp_B & 0xffff000000000000) >> 48;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
-			A1 = static_cast<uint64>(temp_A & 0x0000111100000000) >> 32;
-			B1 = static_cast<uint64>(temp_B & 0x0000111100000000) >> 32;
+			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
+			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000011110000) >>16;
-			B1 = (unsigned short)(temp_B & 0x0000000011110000) >>16;
+			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
+			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x0000000000001111);
-			B1 = (unsigned short)(temp_B & 0x0000000000001111);
+			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
+			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) );
 		}
+		//if(temp_isVAdd)cout <<"intermediate "<<temp_aluResult<<endl;
 		if(temp_isVAnd){
+			//cout <<"entered and" <<endl;
 			temp_aluResult = temp_A & temp_B;
 		}
+		//if(temp_isVAdd)cout <<"intermediate "<<temp_aluResult<<endl;
 	}
 	else{
 		if (temp_isRet){
@@ -1182,7 +1188,6 @@ void Core::execute() {
 
 	ex_ma.PC.Write(temp_PC);
 	ex_ma.instruction_word.Write(temp_instruction_word);
-
 	ex_ma.aluResult.Write(temp_aluResult);
 	ex_ma.operand2.Write(temp_operand2);
 
@@ -1266,7 +1271,7 @@ void Core::mem_access() {
 	bool temp_isVMov2 = ex_ma.isVMov2.Read();
 	bool temp_isVMul = ex_ma.isVMul.Read();
 	bool temp_isVDiv = ex_ma.isVDiv.Read();
-	bool temp_isVAnd = ex_ma.isVAdd.Read();
+	bool temp_isVAnd = ex_ma.isVAnd.Read();
 	bool temp_isVMod = ex_ma.isVMod.Read();
 	bool temp_isVLd = ex_ma.isLd.Read();
 	bool temp_isVSt = ex_ma.isVSt.Read();
@@ -1366,7 +1371,7 @@ void Core::write_back() {
 
 	uint64 temp_ldResult = ma_rw.ldResult.Read();
 	uint64 temp_aluResult = ma_rw.aluResult.Read();
-
+	
 	bool temp_isSt = ma_rw.isSt.Read();
 	bool temp_isLd = ma_rw.isLd.Read();
 	bool temp_isBeq = ma_rw.isBeq.Read();
@@ -1396,11 +1401,10 @@ void Core::write_back() {
 	bool temp_isVMov2 = ma_rw.isVMov2.Read();
 	bool temp_isVMul = ma_rw.isVMul.Read();
 	bool temp_isVDiv = ma_rw.isVDiv.Read();
-	bool temp_isVAnd = ma_rw.isVAdd.Read();
+	bool temp_isVAnd = ma_rw.isVAnd.Read();
 	bool temp_isVMod = ma_rw.isVMod.Read();
 	bool temp_isVLd = ma_rw.isLd.Read();
 	bool temp_isVSt = ma_rw.isVSt.Read();
-
 	uint64 temp_result;
 	uint64 temp_addr;
 	if (temp_isWb){
@@ -1440,7 +1444,8 @@ void Core::write_back() {
 				temp_result = temp_ldResult;
 			}else{
 				temp_result = temp_aluResult;
-				cout << "inside writeback   "<< temp_aluResult<<endl;
+				cout << "inside writeback   "<< temp_result<<endl;
+				//exit(-1);
 			}
 			if(!temp_isCall){
 				temp_addr = inst_bitset(temp_instruction_word, 23, 26);
@@ -1450,12 +1455,14 @@ void Core::write_back() {
 			V[temp_addr] = temp_result;
 			//cout << hex << V[temp_addr] << "   "<< temp_addr << endl;
 			//exit(-1);
-			cout << "vector instruction " <<hex << V[temp_addr] << "   "<< temp_addr << endl;
+			cout << "vector instruction without hex " <<V[temp_addr] << "   "<< temp_addr << endl;
+			//exit(-1);
 			fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
-			if(temp_isVAdd){
+			if(temp_isVDiv){
 				cout << "temp_result" <<temp_result<<endl;
+				//exit(-1);
 				cout << "yeahhh"<<endl;
-				cout << hex << V[temp_addr] << "   "<< temp_addr << endl;
+				cout <<hex <<V[temp_addr] << "   "<< temp_addr << endl;
 				exit(-1);
 			}
 		}
