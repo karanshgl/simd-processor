@@ -86,7 +86,7 @@ class Core
 		bool detect_data_dependency();
 		bool detect_control_dependency();
 		bool detect_data_dependencyV();
-		bool check_data_conflictV();
+		bool check_data_conflictV(PipelineRegister& A, PipelineRegister& B);
 
 
 		//Disassemble encoded instruction to instruction string

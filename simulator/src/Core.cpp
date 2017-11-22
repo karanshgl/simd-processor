@@ -701,8 +701,8 @@ void Core::decode() {
 	unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
 
 	//pprint(2)<<endl<<"rd: R"<<dec<<temp_rd<<", rs1: R"<<dec<<temp_rs1<<", rs2: R"<<dec<<temp_rs2<<endl;
-	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2 || temp_isVSt || temp_isVLd;
-	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov1;
+	bool op1check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd || temp_isVMov2 || temp_isVMov1 || temp_isVSt || temp_isVLd;
+	bool op2check = temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVMod || temp_isVAnd;
 	bool rdcheck = temp_isVMov1 ||temp_isVAdd || temp_isVSub || temp_isVMul || temp_isVDiv || temp_isVAnd || temp_isVLd || temp_isVMod;
 	if (temp_isRet){
 		temp_operand1 = R[15];
@@ -884,6 +884,8 @@ void Core::execute() {
 	uint64 temp_aluResult = 0;
 
 	if(temp_isV){
+
+		unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
 		if(temp_isImmediate){
 			if(temp_isVMov1){
 				unsigned int temp_B = of_ex.B.Read();
@@ -900,7 +902,11 @@ void Core::execute() {
 			unsigned int temp_B = of_ex.A.Read();
 			temp_aluResult = temp_B;
 			temp_aluResult = temp_aluResult << 32;
-			temp_aluResult = temp_aluResult ; // next register value; // to be completed
+			temp_rs2++;
+			temp_B = R[temp_rs2];
+			temp_aluResult = temp_aluResult | temp_B; // next register value
+			temp_rs2--;
+			temp_B = of_ex.A.Read();
 		}
 		if(temp_isVMov2){
 			temp_aluResult = temp_B; // to be rechecked
@@ -1633,7 +1639,7 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 	return false;
 }
-bool Core::check_data_conflictV(){
+bool Core::check_data_conflictV(PipelineRegister& A, PipelineRegister& B){
 	unsigned int A_instruction_word = A.instruction_word.Read();
 	unsigned int B_instruction_word = B.instruction_word.Read();
 	bool A_bubble_inst = A.bubble.Read();
@@ -1660,20 +1666,23 @@ bool Core::check_data_conflictV(){
 
 	unsigned int src1 = A_rs1;
 	unsigned int src2 = A_rs2;
+	unsigned int B_op = inst_bitset(B_instruction_word, 27, 32);
+	unsigned int A_op = inst_bitset(A_instruction_word, 27, 32);
 
-	if (/* vstore */){
+	if (A_opcode5 == 1 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 0){
 		//A is Vst
 		src2 = A_rd;
 	}
 
 	bool hasSrc1 = true;
 
-	if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 1){
+	if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
 		//A is Vmov1
 		hasSrc1 = false;
 	}
+	unsigned int A_I_bit = inst_bitset(A_instruction_word, 27, 27);
 	bool hasSrc2 = true;
-	if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1) && (/*not Vst*/)){
+	if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1) && (!(A_opcode5 == 1 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 0))){
 		//A is NOT st
 		if (A_I_bit == 1){
 			hasSrc2 = false;
@@ -1685,6 +1694,9 @@ bool Core::check_data_conflictV(){
 	}
 
 	if (hasSrc2 && (src2 == dest)){
+		if(A_op == 21 && (B_op !=22 && B_op != 30 && B_op > 20)){
+			return false;
+		}
 		return true;
 	}
 
@@ -1721,7 +1733,7 @@ bool Core::detect_data_dependencyV(){
 			isDataDependency = true;
 		}else if(check_data_conflictV(if_of, ex_ma)){
 			isDataDependency = true;
-		}else if(check_data_conflictV(is_of, ma_rw)){
+		}else if(check_data_conflictV(if_of, ma_rw)){
 			isDataDependency = true;
 		}
 	}
@@ -1914,7 +1926,7 @@ string Core::disassemble (unsigned int inst_word){
 			inst += ", " + hexstring(imm);
 		}
 		else {
-			inst += ", " + rvectorstring(rs2);
+			inst += ", " + vectorstring(rs2);
 		}
 	}
 
