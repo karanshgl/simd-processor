@@ -745,13 +745,13 @@ void Core::decode() {
 	else{
 		if(op1check){
 			temp_operand1= V[temp_rs1]; // for vector instruction
-			if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 1 "<<temp_operand1<< "    "  <<temp_rs1 <<endl; 
+			//if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 1 "<<temp_operand1<< "    "  <<temp_rs1 <<endl; 
 			fprint(1) << ";"<<vectorstring(temp_rs1)<<" =0x"; // same as register string
 		}else{
 			//unsigned int temp_operand1;
 			temp_operand1 = (unsigned int)temp_operand1;
 			temp_operand1 = R[temp_rs1];
-			cout << "operand 1 is " << temp_operand1<<endl;
+			//cout << "operand 1 is " << temp_operand1<<endl;
 			//pprint(2)<<"Operand1: "<<dec<<temp_operand1<<" (Read from rs1)"<<endl;
 			fprint(1)<<"; "<<registerstring(temp_rs1)<<" = 0x";
 		}
@@ -776,7 +776,7 @@ void Core::decode() {
 				temp_operand2 = (uint64)temp_operand2;
 				uint64 a = V[temp_rs2];
 				temp_operand2 = a; // for vector instruction
-				if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 2a " <<temp_operand2 <<"   " <<temp_rs2<<endl;	
+				//if(temp_isVAdd) cout <<"temp_isVAdd OPERAND 2a " <<temp_operand2 <<"   " <<temp_rs2<<endl;	
 				if(!temp_isImmediate){
 					fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
 				}
@@ -784,8 +784,8 @@ void Core::decode() {
 				//unsigned int temp_operand2;
 				temp_operand2 = (unsigned int)temp_operand2;
 				temp_operand2 = R[temp_rs2];
-				if(temp_isVMov1)cout << "temp insssss"<<endl;
-				cout << "operand2 is " << temp_operand2<<endl;
+				//if(temp_isVMov1)cout << "temp insssss"<<endl;
+				//cout << "operand2 is " << temp_operand2<<endl;
 				//pprint(2)<<"Operand2: "<<dec<<temp_operand2<<" (Read from rs2)"<<endl;
 				if (!temp_isImmediate){
 					if(temp_isVMov1) fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
@@ -1465,14 +1465,18 @@ void Core::write_back() {
 			//exit(-1);
 			cout << "vector instruction without hex " <<V[temp_addr] << "   "<< temp_addr << endl;
 			//exit(-1);
-			fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
-			if(temp_isVDiv){
+			if(!temp_isVMov2)fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
+			if(temp_isVMov2){
+				cout<<"INSIDE MOV2 PRINT "<<endl;
+				fprint(1)<<";"<<registerstring(temp_addr)<<"=0x"<<hex<<R[temp_addr] <<";"<<registerstring(temp_addr+1)<<"=0x"<<hex<<R[temp_addr+1];
+			}
+			/*if(temp_isVDiv){
 				cout << "temp_result" <<temp_result<<endl;
 				//exit(-1);
 				cout << "yeahhh"<<endl;
 				cout <<hex <<V[temp_addr] << "   "<< temp_addr << endl;
 				exit(-1);
-			}
+			}*/
 		}
 
 	}
@@ -1999,7 +2003,8 @@ string Core::disassemble (unsigned int inst_word){
 			inst += ", " + hexstring(imm);
 		}
 		else {
-			inst += ", " + vectorstring(rs2);
+			cout << "printing register string   " <<endl;
+			inst += ", " + vectorstring(rs2) ;
 		}
 	}
 
