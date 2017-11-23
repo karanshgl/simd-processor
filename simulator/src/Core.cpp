@@ -458,7 +458,7 @@ void Core::decode() {
 
 	if(opcode5 == 0 && opcode4 == 0 && opcode3 == 0 && opcode2 == 0 && opcode1 == 0){
 		temp_isAdd = true;
-		cout << "instruction is add "<<endl;
+		//cout << "instruction is add "<<endl;
 		temp_isV = false;
 		//pprint(2)<<"isAdd ";
 	}
@@ -932,7 +932,10 @@ void Core::execute() {
 	uint64 temp_aluResult = 0;
 	uint64 l;
 	if(temp_isV){
-
+		if(temp_isImmediate){
+			uint64 t = temp_B;
+			temp_B =(((((t << 16) | t) << 16) | t) << 16) | t;
+		}
 		unsigned int temp_rs2 = inst_bitset(temp_instruction_word, 15,18);
 		if(temp_isImmediate){
 			if(temp_isVMov1){
@@ -990,8 +993,8 @@ void Core::execute() {
 			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
 			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
-			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
-			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
+			A1 = (unsigned short)((temp_A & 0x00000000ffff0000) >> 16);
+			B1 = (unsigned short)((temp_B & 0x00000000ffff0000) >> 16);
 			temp_aluResult = (temp_aluResult | (A1+(~B1)+1)) << 16;
 			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
 			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
@@ -1004,8 +1007,8 @@ void Core::execute() {
 			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
 			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
-			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
+			A1 = (unsigned short)((temp_A & 0x00000000ffff0000) >> 16);
+			B1 = (unsigned short)((temp_B & 0x00000000ffff0000) >> 16);
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1*(signed short)B1) ) << 16;
 			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
 			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
@@ -1018,8 +1021,8 @@ void Core::execute() {
 			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
 			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
-			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
+			A1 = (unsigned short)((temp_A & 0x00000000ffff0000) >> 16);
+			B1 = (unsigned short)((temp_B & 0x00000000ffff0000) >> 16);
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1/(signed short)B1) ) << 16;
 			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
 			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
@@ -1032,8 +1035,8 @@ void Core::execute() {
 			A1 = static_cast<uint64>(temp_A & 0x0000ffff00000000) >> 32;
 			B1 = static_cast<uint64>(temp_B & 0x0000ffff00000000) >> 32;
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
-			A1 = (unsigned short)(temp_A & 0x00000000ffff0000) >>16;
-			B1 = (unsigned short)(temp_B & 0x00000000ffff0000) >>16;
+			A1 = (unsigned short)((temp_A & 0x00000000ffff0000) >> 16);
+			B1 = (unsigned short)((temp_B & 0x00000000ffff0000) >> 16);
 			temp_aluResult = (temp_aluResult | (unsigned short)((signed short)A1%(signed short)B1) ) << 16;
 			A1 = (unsigned short)(temp_A & 0x000000000000ffff);
 			B1 = (unsigned short)(temp_B & 0x000000000000ffff);
