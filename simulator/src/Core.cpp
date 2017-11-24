@@ -229,7 +229,7 @@ void Core::run_simplesim(){
 		isControlDependency = detect_control_dependency();
 
 		if (!isDataDependency && !isControlDependency){
-			cout << "no Dependency"<<endl;
+			//cout << "no Dependency"<<endl;
 			PC.clock();
 			if_of.clock();
 			of_ex.clock();
@@ -245,7 +245,7 @@ void Core::run_simplesim(){
 			//pprint(2)<<"|     Bubbling OF-EX    |"<<endl;
 			//pprint(2)<<"+-----------------------+"<<endl;
 			//pprint(2)<<endl;
-			cout <<"Dependency"<<endl;
+			//cout <<"Dependency"<<endl;
 			of_ex.WriteBubble(true);
 			of_ex.clock();
 
@@ -827,11 +827,11 @@ void Core::decode() {
 			fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
 		}*/
 	}
-	cout << "is vector? "<<temp_isV <<endl;
-	cout << "temp_operand1 "<<temp_operand1 <<endl;
+	//cout << "is vector? "<<temp_isV <<endl;
+	//cout << "temp_operand1 "<<temp_operand1 <<endl;
 
 	uint64 temp_A = temp_operand1;
-	cout << "temp_A is " << temp_A;
+	//cout << "temp_A is " << temp_A;
 	uint64 temp_B;
 	if (!temp_isImmediate){
 		fprint(1)<<hex<<temp_operand2;
@@ -849,7 +849,7 @@ void Core::decode() {
 	}
 	else {
 		temp_B = temp_operand2;
-		cout << "inside else  "<< temp_B<<endl;
+		//cout << "inside else  "<< temp_B<<endl;
 		//pprint(2)<<"B: "<<dec<<temp_B<<" (operand2)"<<endl;
 	}
 
@@ -896,7 +896,7 @@ void Core::decode() {
 	of_ex.isVMov2.Write(temp_isVMov2);
 	of_ex.isVAdd.Write(temp_isVAdd);
 	of_ex.isV.Write(temp_isV);
-
+	//cout << "op fetch " <<temp_isV <<endl;
 	of_ex.ForwardBubble(bubble_inst);
 
 }
@@ -910,7 +910,7 @@ void Core::execute() {
 	if (bubble_inst){
 		//pprint(2)<<"<<<< Pipeline Bubble >>>>"<<endl<<endl;
 	}
-	cout << "execute unit "<< endl;
+	//cout << "execute unit "<< endl;
 	unsigned int temp_PC = of_ex.PC.Read();
 	unsigned int temp_instruction_word = of_ex.instruction_word.Read();
 
@@ -1113,10 +1113,10 @@ void Core::execute() {
 
 		if (temp_isAdd){
 			//pprint(2)<<"ADD operation"<<endl;
-			cout << "temp_A is " << temp_A<<endl;
-			cout << "temp_B is "<<temp_B <<endl;
-			temp_aluResult = temp_A + temp_B;
-			cout << "aluResult "<< temp_aluResult <<endl;
+			//cout << "temp_A is " << temp_A<<endl;
+			//cout << "temp_B is "<<temp_B <<endl;
+			//temp_aluResult = temp_A + temp_B;
+			//cout << "aluResult "<< temp_aluResult <<endl;
 			//exit(-1);
 
 		}
@@ -1247,7 +1247,7 @@ void Core::execute() {
 	ex_ma.isVMov2.Write(temp_isVMov2);
 	ex_ma.isVAdd.Write(temp_isVAdd);
 	ex_ma.isV.Write(temp_isV);
-
+	//cout << "execute " <<temp_isV <<endl;
 	ex_ma.ForwardBubble(bubble_inst);
 
 }
@@ -1264,7 +1264,7 @@ void Core::mem_access() {
 
 	unsigned int temp_PC = ex_ma.PC.Read();
 	unsigned int temp_instruction_word = ex_ma.instruction_word.Read();
-	cout << "memory unit "<< endl;
+	//cout << "memory unit "<< endl;
 	bool temp_isSt = ex_ma.isSt.Read();
 	bool temp_isLd = ex_ma.isLd.Read();
 	bool temp_isBeq = ex_ma.isBeq.Read();
@@ -1352,7 +1352,7 @@ void Core::mem_access() {
 
 	ma_rw.ldResult.Write(temp_ldResult);
 	ma_rw.aluResult.Write(temp_aluResult);
-
+	//cout << "mem access" <<temp_isV <<endl;
 	ma_rw.isSt.Write(temp_isSt);
 	ma_rw.isLd.Write(temp_isLd);
 	ma_rw.isBeq.Write(temp_isBeq);
@@ -1400,7 +1400,7 @@ void Core::write_back() {
 	if (bubble_inst){
 		//pprint(2)<<"<<<< Pipeline Bubble >>>>"<<endl<<endl;
 	}
-	cout << "writeback unit "<< endl;
+	//cout << "writeback unit "<< endl;
 	unsigned int temp_PC = ma_rw.PC.Read();
 	unsigned int temp_instruction_word = ma_rw.instruction_word.Read();
 
@@ -1483,12 +1483,12 @@ void Core::write_back() {
 				temp_result = temp_ldResult;
 			}else{
 				temp_result = temp_aluResult;
-				cout << "inside writeback   "<< temp_result<<endl;
+				//cout << "inside writeback   "<< temp_result<<endl;
 				//exit(-1);
 			}
 			if(!temp_isCall){
 				temp_addr = inst_bitset(temp_instruction_word, 23, 26);
-				cout << "writing to address  "<< temp_addr <<endl;
+				//cout << "writing to address  "<< temp_addr <<endl;
 			}
 			//exit(-1);
 			if(!temp_isVMov2) V[temp_addr] = temp_result;
@@ -1498,11 +1498,11 @@ void Core::write_back() {
 			}
 			//cout << hex << V[temp_addr] << "   "<< temp_addr << endl;
 			//exit(-1);
-			cout << "vector instruction without hex " <<V[temp_addr] << "   "<< temp_addr << endl;
+			//cout << "vector instruction without hex " <<V[temp_addr] << "   "<< temp_addr << endl;
 			//exit(-1);
 			if(!temp_isVMov2)fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
 			if(temp_isVMov2){
-				cout<<"INSIDE MOV2 PRINT "<<endl;
+				//cout<<"INSIDE MOV2 PRINT "<<endl;
 				fprint(1)<<";"<<registerstring(temp_addr)<<"=0x"<<hex<<R[temp_addr] <<";"<<registerstring(temp_addr+1)<<"=0x"<<hex<<R[temp_addr+1];
 			}
 			/*if(temp_isVDiv){
@@ -1665,10 +1665,13 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 	unsigned int B_opcode4 = inst_bitset(B_instruction_word, 31, 31);
 	unsigned int B_opcode5 = inst_bitset(B_instruction_word, 32, 32);
 
+	if(A.isVMov1.Read()) cout << "VMOV1 is the instruction "<<endl;
+	//if(B.isVMov1.Read()) cout <<"VMOV1 is the instruction "<< endl;
 	bool A_bubble_inst = A.bubble.Read();
 	bool temp_isV = A.isV.Read();
+	//cout << "instruction " << temp_isV << endl;
 	if(!temp_isV){
-		cout <<"NOT VECTOR INSTRUCTION"<<endl;
+		//cout <<"NOT VECTOR INSTRUCTION"<<endl;
 		if (A_bubble_inst){
 			return false;	//A is bubble
 		}
@@ -1764,12 +1767,12 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 		}
 
 		if (hasSrc1 && (src1 == dest)){
-			cout << "FOUND FOUND FOUND 11111"<<endl;
+			//cout << "FOUND FOUND FOUND 11111"<<endl;
 			return true;
 		}
 
 		if (hasSrc2 && (src2 == dest)){
-			cout << "FOUND FOUND FOUND 222222"<<endl;
+			//cout << "FOUND FOUND FOUND 222222"<<endl;
 			return true;
 		}
 
@@ -1810,84 +1813,23 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 		}
 
 		if (hasSrc1 && (src1 == dest)){
-			cout << "DATA DEPENDENCY"<<endl;
+			//cout << "DATA DEPENDENCY"<<endl;
 			return true;
 		}
 
-		if (hasSrc2 && (src2 == dest)){
-			if(A_op == 21 && (B_op !=22 && B_op != 30 && B_op > 20)){
-				return false;
-			}
-			cout << "DATA DEPENDENCY" <<endl;
+		if (hasSrc2 && (src2 == dest) && !A.isVMov1.Read()){
+			//cout << "DATA DEPENDENCY" <<endl;
 			return true;
+		}
+		if(A.isVMov1.Read()){
+			cout << "src2    " << dest << "    "<< dest+1 <<endl;
+			if(src2 == dest || src2 == dest+1){
+				return true;
+			}
 		}
 
 		return false;
 		}
-}
-bool Core::check_data_conflictV(PipelineRegister& A, PipelineRegister& B){
-	unsigned int A_instruction_word = A.instruction_word.Read();
-	unsigned int B_instruction_word = B.instruction_word.Read();
-	bool A_bubble_inst = A.bubble.Read();
-	bool B_bubble_inst = B.bubble.Read();
-	unsigned int A_opcode1 = inst_bitset(A_instruction_word, 28, 28);
-	unsigned int A_opcode2 = inst_bitset(A_instruction_word, 29, 29);
-	unsigned int A_opcode3 = inst_bitset(A_instruction_word, 30, 30);
-	unsigned int A_opcode4 = inst_bitset(A_instruction_word, 31, 31);
-	unsigned int A_opcode5 = inst_bitset(A_instruction_word, 32, 32);
-	// B opcodes
-	unsigned int B_opcode1 = inst_bitset(B_instruction_word, 28, 28);
-	unsigned int B_opcode2 = inst_bitset(B_instruction_word, 29, 29);
-	unsigned int B_opcode3 = inst_bitset(B_instruction_word, 30, 30);
-	unsigned int B_opcode4 = inst_bitset(B_instruction_word, 31, 31);
-	unsigned int B_opcode5 = inst_bitset(B_instruction_word, 32, 32);
-
-	unsigned int A_rs1 = inst_bitset(A_instruction_word, 19,22);
-	unsigned int A_rs2 = inst_bitset(A_instruction_word, 15,18);
-	unsigned int A_rd = inst_bitset(A_instruction_word, 23,26);
-
-	unsigned int B_rd = inst_bitset(B_instruction_word, 23,26);
-
-	unsigned int dest = B_rd;
-
-	unsigned int src1 = A_rs1;
-	unsigned int src2 = A_rs2;
-	unsigned int B_op = inst_bitset(B_instruction_word, 27, 32);
-	unsigned int A_op = inst_bitset(A_instruction_word, 27, 32);
-
-	if (A_opcode5 == 1 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 0){
-		//A is Vst
-		src2 = A_rd;
-	}
-
-	bool hasSrc1 = true;
-
-	if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
-		//A is Vmov1
-		hasSrc1 = false;
-	}
-	unsigned int A_I_bit = inst_bitset(A_instruction_word, 27, 27);
-	bool hasSrc2 = true;
-	if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1) && (!(A_opcode5 == 1 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 0))){
-		//A is NOT st
-		if (A_I_bit == 1){
-			hasSrc2 = false;
-		}
-	}
-
-	if (hasSrc1 && (src1 == dest)){
-		return true;
-	}
-
-	if (hasSrc2 && (src2 == dest)){
-		if(A_op == 21 && (B_op !=22 && B_op != 30 && B_op > 20)){
-			return false;
-		}
-		return true;
-	}
-
-	return false;
-
 }
 
 bool Core::detect_data_dependency(){
@@ -1897,35 +1839,22 @@ bool Core::detect_data_dependency(){
 	if (pipeline){
 		if (check_data_conflict(if_of, of_ex)){
 			////pprint(2)<<"Data Dependency between DECODE and EXECUTE"<<endl;
-			cout << "FOUND FOUND FOUND 33333333"<<endl;
+			//cout << "FOUND FOUND FOUND 33333333"<<endl;
 			isDataDependency = true;
 		}
 		else if (check_data_conflict(if_of, ex_ma)){
 			////pprint(2)<<"Data Dependency between DECODE and MEMORY ACCESS"<<endl;
-			cout << "FOUND FOUND FOUND 44444444"<<endl;
+			//cout << "FOUND FOUND FOUND 44444444"<<endl;
 			isDataDependency = true;
 		}
 		else if (check_data_conflict(if_of, ma_rw)){
-			cout << "FOUND FOUND FOUND 55555555"<<endl;
+			//cout << "FOUND FOUND FOUND 55555555"<<endl;
 			////pprint(2)<<"Data Dependency between DECODE and MEMORY ACCESS"<<endl;
 			isDataDependency = true;
 		}
 	}
-	cout << "RETURNING IS DATA DEPENDENCY "<< isDataDependency <<endl;
+	//cout << "RETURNING IS DATA DEPENDENCY "<< isDataDependency <<endl;
 	return isDataDependency;
-
-}
-bool Core::detect_data_dependencyV(){
-	bool isDataDependency = false;
-	if(pipeline){
-		if(check_data_conflictV(if_of, of_ex)){
-			isDataDependency = true;
-		}else if(check_data_conflictV(if_of, ex_ma)){
-			isDataDependency = true;
-		}else if(check_data_conflictV(if_of, ma_rw)){
-			isDataDependency = true;
-		}
-	}
 }
 bool Core::detect_control_dependency(){
 
