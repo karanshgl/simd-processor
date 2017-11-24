@@ -34,7 +34,7 @@
 
 using namespace std;
 
-bool pipeline = false;
+bool pipeline = true;
 int debugLevel = 1;
 int MEM_CAPACITY = 100000;
 char* inputFileName = NULL;

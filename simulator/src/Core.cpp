@@ -95,6 +95,12 @@ void Core::write_context() {
 			context_file<<"R"<<dec<<i<<" : "<<dec<<R[i]<<endl;
 		}
 
+		context_file<<"Vectors"<<endl<<endl;
+
+		for(int i=0; i<16; i++){
+			context_file<<"V"<<dec<<i<<" : "<<dec<<V[i]<<endl;
+		}
+
 		context_file<<endl;
 		context_file<<"PC : 0x"<<hex<<PC.Read()<<endl;
 		context_file<<endl;
@@ -150,9 +156,15 @@ void Core::run_simplesim(){
 	bool isDataDependency;
 	bool isControlDependency;
 
-	pprint(1)<<"+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+"<<endl;
-	pprint(1)<<"| CYCLE  | FETCH  | DECODE | EXECUT | MEMORY | WRITE  |   r0   |   r1   |   r2   |   r3   |   r4   |   r5   |   r6   |   r7   |   r8   |   r9   |  r10   |  r11   |  r12   |  r13   |   sp   |   ra   |"<<endl;
-	pprint(1)<<"+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+"<<endl;
+	pprint(1)<<"+--------+--------+--------+--------+--------+--------+"<<endl;
+	pprint(1)<<"| CYCLE  | FETCH  | DECODE | EXECUTE | MEMORY | WRITE |"<<endl;
+	pprint(1)<<"+--------+--------+--------+--------+--------+--------+"<<endl;
+	pprint(1)<<"+------+------+------+------+------+------+------+------+------+------+-------+-------+-------+-------+-------+-------+"<<endl;
+	pprint(1)<<"|  r0  |  r1  |  r2  |  r3  |  r4  |  r5  |  r6  |  r7  |  r8  |  r9  |  r10  |  r11  |  r12  |  r13  |   sp  |   ra  |"<<endl;
+	pprint(1)<<"+------+------+-- ---+------+------+------+------+------+------+------+-------+-------+-------+-------+-------+-------+"<<endl;
+	pprint(1)<<"+------+------+------+------+------+------+------+------+------+------+-------+-------+-------+-------+-------+-------+"<<endl;
+	pprint(1)<<"|  v0  |  v1  |  v2  |  v3  |  v4  |  v5  |  v6  |  v7  |  v8  |  v9  |  v10  |  v11  |  v12  |  v13  |  v15  |  v16  |"<<endl;
+	pprint(1)<<"+------+------+-- ---+------+------+------+------+------+------+------+-------+-------+-------+-------+-------+-------+"<<endl;
 
 	int counter = 0;
 	while ( checkValidPC(PC.Read()) || ( pipeline && ((if_of.bubble.Read() == false) || (of_ex.bubble.Read() == false) || (ex_ma.bubble.Read() == false) || (ma_rw.bubble.Read() == false)) )){
@@ -197,9 +209,14 @@ void Core::run_simplesim(){
 		else {
 			pprint(1)<<" I"<<left<<dec<<setw(6)<<((ma_rw.PC.Read())/4 + 1)<<"|";
 		}
-
+		pprint(1)<<endl<<" ";
 		for (int k = 0; k< 16 ; k++){
-			pprint(1)<<right<<hex<<setw(8)<<R[k]<<"|";
+			pprint(1)<<right<<hex<<setw(6+(k/10))<<R[k]<<"|";
+		}
+
+		pprint(1)<<endl<<" ";
+		for (int k = 0; k< 16 ; k++){
+			pprint(1)<<right<<hex<<setw(6+(k/10))<<V[k]<<"|";
 		}
 
 		fetch_begin();
@@ -209,7 +226,7 @@ void Core::run_simplesim(){
 		write_back();
 		fetch_end();
 
-		isDataDependency = detect_data_dependency() || detect_data_dependencyV();
+		isDataDependency = detect_data_dependency();
 		isControlDependency = detect_control_dependency();
 
 		if (!isDataDependency && !isControlDependency){
