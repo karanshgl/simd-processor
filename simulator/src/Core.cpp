@@ -1116,7 +1116,7 @@ void Core::execute() {
 			//pprint(2)<<"ADD operation"<<endl;
 			//cout << "temp_A is " << temp_A<<endl;
 			//cout << "temp_B is "<<temp_B <<endl;
-			//temp_aluResult = temp_A + temp_B;
+			temp_aluResult = temp_A + temp_B;
 			//cout << "aluResult "<< temp_aluResult <<endl;
 			//exit(-1);
 
