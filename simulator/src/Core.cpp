@@ -844,6 +844,7 @@ void Core::decode() {
 
 
 	if (temp_isImmediate){
+		cout<<"IMl "<<temp_immx<<endl;
 		temp_B = temp_immx;
 		//pprint(2)<<"B: "<<dec<<temp_B<<" (immx)"<<endl;
 
@@ -961,7 +962,7 @@ void Core::execute() {
 	uint64 temp_aluResult = 0;
 	uint64 l;
 	if(temp_isV){
-		if(temp_isImmediate){
+		if(temp_isImmediate && !(temp_isVLd||temp_isVSt)){
 			uint64 t = temp_B;
 			temp_B =(((((t << 16) | t) << 16) | t) << 16) | t;
 		}
@@ -995,6 +996,7 @@ void Core::execute() {
 		}
 		if(temp_isVLd){
 			temp_aluResult = temp_A + temp_B; // CHECK 
+			cout<<"Problem : "<<temp_A<<" "<<temp_B<<endl;
 		}
 		if(temp_isVSt){
 			temp_aluResult = temp_A + temp_B; // CHECK 
