@@ -1650,7 +1650,6 @@ unsigned int Core::inst_bitset(unsigned int inst_word, unsigned int start, unsig
 
 bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 	unsigned int A_instruction_word = A.instruction_word.Read();
-
 	unsigned int A_opcode1 = inst_bitset(A_instruction_word, 28, 28);
 	unsigned int A_opcode2 = inst_bitset(A_instruction_word, 29, 29);
 	unsigned int A_opcode3 = inst_bitset(A_instruction_word, 30, 30);
@@ -1665,10 +1664,9 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 	unsigned int B_opcode4 = inst_bitset(B_instruction_word, 31, 31);
 	unsigned int B_opcode5 = inst_bitset(B_instruction_word, 32, 32);
 
-	if(A.isVMov1.Read()) cout << "VMOV1 is the instruction "<<endl;
-	//if(B.isVMov1.Read()) cout <<"VMOV1 is the instruction "<< endl;
+	//if(A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1) cout << "FOUND VMOV 1" <<endl;
 	bool A_bubble_inst = A.bubble.Read();
-	bool temp_isV = A.isV.Read();
+	bool temp_isV = inst_bitset(A_instruction_word, 28, 32) > 20;
 	//cout << "instruction " << temp_isV << endl;
 	if(!temp_isV){
 		//cout <<"NOT VECTOR INSTRUCTION"<<endl;
@@ -1778,7 +1776,8 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 		return false;
 	}else{
-		cout << "INSIDE ELSE "<<endl;
+		cout <<hex<< A_instruction_word << "    " << hex <<B_instruction_word <<endl;
+		//cout << "INSIDE ELSE "<<endl;
 		unsigned int A_rs1 = inst_bitset(A_instruction_word, 19,22);
 		unsigned int A_rs2 = inst_bitset(A_instruction_word, 15,18);
 		unsigned int A_rd = inst_bitset(A_instruction_word, 23,26);
@@ -1817,14 +1816,14 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 			return true;
 		}
 
-		if (hasSrc2 && (src2 == dest) && !A.isVMov1.Read()){
+		if (hasSrc2 && (src2 == dest) && !(A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1)){
 			//cout << "DATA DEPENDENCY" <<endl;
 			return true;
 		}
-		if(A.isVMov1.Read()){
-			cout << "src2    " << dest << "    "<< dest+1 <<endl;
+		if(A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
+			cout << "src2    " <<src2 <<"    "<< dest << "    "<< dest+1 <<endl;
 			if(src2 == dest || src2 == dest+1){
-				return true;
+				return false;
 			}
 		}
 
