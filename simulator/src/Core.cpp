@@ -844,7 +844,7 @@ void Core::decode() {
 
 
 	if (temp_isImmediate){
-		cout<<"IMl "<<temp_immx<<endl;
+		//cout<<"IMl "<<temp_immx<<endl;
 		temp_B = temp_immx;
 		//pprint(2)<<"B: "<<dec<<temp_B<<" (immx)"<<endl;
 
@@ -997,7 +997,7 @@ void Core::execute() {
 		}
 		if(temp_isVLd){
 			temp_aluResult = temp_A + temp_B; // CHECK 
-			cout<<"Problem : "<<temp_A<<" "<<temp_B<<endl;
+			//cout<<"Problem : "<<temp_A<<" "<<temp_B<<endl;
 		}
 		if(temp_isVSt){
 			temp_aluResult = temp_A + temp_B; // CHECK 
@@ -1332,7 +1332,7 @@ void Core::mem_access() {
 		//uint64 temp_ldResult = MEM.Read(temp_mar);
 		if (temp_mar >= 0 && temp_mar <= MEM_CAPACITY - sizeof(unsigned int) - 4){
 			temp_ldResult = MEM.Read(temp_mar);
-			cout<<endl;
+			//cout<<endl;
 			temp_ldResult = temp_ldResult << 32;
 			temp_ldResult += MEM.Read(temp_mar+4);
 		}
@@ -1792,7 +1792,7 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 		return false;
 	}else{
-		cout <<hex<< A_instruction_word << "    " << hex <<B_instruction_word <<endl;
+		//cout <<hex<< A_instruction_word << "    " << hex <<B_instruction_word <<endl;
 		//cout << "INSIDE ELSE "<<endl;
 		unsigned int A_rs1 = inst_bitset(A_instruction_word, 19,22);
 		unsigned int A_rs2 = inst_bitset(A_instruction_word, 15,18);
@@ -1837,7 +1837,7 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 			return true;
 		}
 		if(A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
-			cout << "src2    " <<src2 <<"    "<< dest << "    "<< dest+1 <<endl;
+			//cout << "src2    " <<src2 <<"    "<< dest << "    "<< dest+1 <<endl;
 			if(src2 == dest || src2 == dest+1){
 				return false;
 			}
@@ -1995,7 +1995,7 @@ string Core::disassemble (unsigned int inst_word){
 		else {
 			inst += ", " + registerstring(rs2);
 		}
-		cout << "regist stirng " << inst <<"     "<< registerstring(rs2)<<endl;
+		//cout << "regist stirng " << inst <<"     "<< registerstring(rs2)<<endl;
 		//exit(-1);
 	}
 	if (opcode5 == 0 && opcode4 == 1 && opcode3 == 0 && opcode2 == 1 && opcode1 == 0){
@@ -2041,7 +2041,7 @@ string Core::disassemble (unsigned int inst_word){
 			inst += ", " + hexstring(imm);
 		}
 		else {
-			cout << "printing register string   " <<endl;
+			//cout << "printing register string   " <<endl;
 			inst += ", " + vectorstring(rs2) ;
 		}
 	}
@@ -2141,8 +2141,8 @@ string Core::disassemble (unsigned int inst_word){
 	if (opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 0){
 		inst = "RET";
 	}
-	cout <<endl;
-	cout << inst << endl;
+	//cout <<endl;
+	//cout << inst << endl;
 	//exit(-1);
 	return inst;
 
