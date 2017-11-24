@@ -1666,7 +1666,8 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 	//if(A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1) cout << "FOUND VMOV 1" <<endl;
 	bool A_bubble_inst = A.bubble.Read();
-	bool temp_isV = inst_bitset(A_instruction_word, 28, 32) > 20;
+	bool temp_isV = inst_bitset(A_instruction_word, 28, 32) > 21;
+	bool isVMov1 = inst_bitset(A_instruction_word, 28, 32) == 21;
 	//cout << "instruction " << temp_isV << endl;
 	if(!temp_isV){
 		//cout <<"NOT VECTOR INSTRUCTION"<<endl;
@@ -1692,6 +1693,9 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 
 		bool B_bubble_inst = B.bubble.Read();
+		int id = inst_bitset(B_instruction_word, 28, 32);
+		bool temp_isRdest = ( id < 21) || (id == 22);
+		if(!temp_isRdest) return false;
 
 		if (B_bubble_inst){
 			return false;	//B is bubble
@@ -1755,6 +1759,10 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 			//A is not
 			hasSrc1 = false;
 		}
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
+			//A is not
+			hasSrc1 = false;
+		}
 
 		bool hasSrc2 = true;
 		if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1)){
@@ -1771,6 +1779,10 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 		if (hasSrc2 && (src2 == dest)){
 			//cout << "FOUND FOUND FOUND 222222"<<endl;
+			return true;
+		}
+
+		if(hasSrc2 && isVMov1 && ((src2 == dest) || ((src2+1) == dest))){
 			return true;
 		}
 
