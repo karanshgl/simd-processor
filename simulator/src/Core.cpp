@@ -147,7 +147,6 @@ void Core::reset_proc()
 	eq = false;
 	gt = false;
 	isBranchTaken = false;
-	temp_isV = false;
 
 }
 
@@ -230,7 +229,7 @@ void Core::run_simplesim(){
 		isControlDependency = detect_control_dependency();
 
 		if (!isDataDependency && !isControlDependency){
-
+			cout << "no Dependency"<<endl;
 			PC.clock();
 			if_of.clock();
 			of_ex.clock();
@@ -246,7 +245,7 @@ void Core::run_simplesim(){
 			//pprint(2)<<"|     Bubbling OF-EX    |"<<endl;
 			//pprint(2)<<"+-----------------------+"<<endl;
 			//pprint(2)<<endl;
-
+			cout <<"Dependency"<<endl;
 			of_ex.WriteBubble(true);
 			of_ex.clock();
 
@@ -396,7 +395,7 @@ void Core::decode() {
 	bool temp_isVAnd;
 	bool temp_isVLd;
 	bool temp_isVSt;
-	temp_isV = false;
+	bool temp_isV;
 
 	unsigned int opcode1 = inst_bitset(temp_instruction_word, 28, 28);
 	unsigned int opcode2 = inst_bitset(temp_instruction_word, 29, 29);
@@ -896,6 +895,7 @@ void Core::decode() {
 	of_ex.isVMov1.Write(temp_isVMov1);
 	of_ex.isVMov2.Write(temp_isVMov2);
 	of_ex.isVAdd.Write(temp_isVAdd);
+	of_ex.isV.Write(temp_isV);
 
 	of_ex.ForwardBubble(bubble_inst);
 
@@ -910,7 +910,7 @@ void Core::execute() {
 	if (bubble_inst){
 		//pprint(2)<<"<<<< Pipeline Bubble >>>>"<<endl<<endl;
 	}
-
+	cout << "execute unit "<< endl;
 	unsigned int temp_PC = of_ex.PC.Read();
 	unsigned int temp_instruction_word = of_ex.instruction_word.Read();
 
@@ -951,6 +951,7 @@ void Core::execute() {
 	bool temp_isVMod = of_ex.isVMod.Read();
 	bool temp_isVLd = of_ex.isVLd.Read();
 	bool temp_isVSt = of_ex.isVSt.Read();
+	bool temp_isV = of_ex.isV.Read();
 	//////////   Branch Unit  ///////////
 	//pprint(2)<<"*** Branch Unit"<<endl;
 	uint64 temp_A = of_ex.A.Read();
@@ -1245,6 +1246,7 @@ void Core::execute() {
 	ex_ma.isVMov1.Write(temp_isVMov1);
 	ex_ma.isVMov2.Write(temp_isVMov2);
 	ex_ma.isVAdd.Write(temp_isVAdd);
+	ex_ma.isV.Write(temp_isV);
 
 	ex_ma.ForwardBubble(bubble_inst);
 
@@ -1262,7 +1264,7 @@ void Core::mem_access() {
 
 	unsigned int temp_PC = ex_ma.PC.Read();
 	unsigned int temp_instruction_word = ex_ma.instruction_word.Read();
-
+	cout << "memory unit "<< endl;
 	bool temp_isSt = ex_ma.isSt.Read();
 	bool temp_isLd = ex_ma.isLd.Read();
 	bool temp_isBeq = ex_ma.isBeq.Read();
@@ -1296,7 +1298,8 @@ void Core::mem_access() {
 	bool temp_isVMod = ex_ma.isVMod.Read();
 	bool temp_isVLd = ex_ma.isVLd.Read();
 	bool temp_isVSt = ex_ma.isVSt.Read();
-	
+	bool temp_isV = ex_ma.isV.Read();
+
 	uint64 temp_aluResult = ex_ma.aluResult.Read();
 	uint64 temp_operand2 = ex_ma.operand2.Read();
 	uint64 temp_mar = temp_aluResult;
@@ -1383,6 +1386,7 @@ void Core::mem_access() {
 	ma_rw.isVMov1.Write(temp_isVMov1);
 	ma_rw.isVMov2.Write(temp_isVMov2);
 	ma_rw.isVAdd.Write(temp_isVAdd);
+	ma_rw.isV.Write(temp_isV);
 
 	ma_rw.ForwardBubble(bubble_inst);
 
@@ -1396,7 +1400,7 @@ void Core::write_back() {
 	if (bubble_inst){
 		//pprint(2)<<"<<<< Pipeline Bubble >>>>"<<endl<<endl;
 	}
-
+	cout << "writeback unit "<< endl;
 	unsigned int temp_PC = ma_rw.PC.Read();
 	unsigned int temp_instruction_word = ma_rw.instruction_word.Read();
 
@@ -1435,6 +1439,7 @@ void Core::write_back() {
 	bool temp_isVMod = ma_rw.isVMod.Read();
 	bool temp_isVLd = ma_rw.isVLd.Read();
 	bool temp_isVSt = ma_rw.isVSt.Read();
+	bool temp_isV = ma_rw.isV.Read();
 
 	uint64 temp_result;
 	uint64 temp_addr;
@@ -1652,27 +1657,6 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 	unsigned int A_opcode4 = inst_bitset(A_instruction_word, 31, 31);
 	unsigned int A_opcode5 = inst_bitset(A_instruction_word, 32, 32);
 
-	bool A_bubble_inst = A.bubble.Read();
-
-	if (A_bubble_inst){
-		return false;	//A is bubble
-	}
-	if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
-		return false;	//A is nop
-	}
-	if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 1 && A_opcode1 == 0){
-		return false;	//A is b
-	}
-	if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 0){
-		return false;	//A is beq
-	}
-	if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 1){
-		return false;	//A is bgt
-	}
-	if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 1 && A_opcode1 == 1){
-		return false;	//A is call
-	}
-
 	unsigned int B_instruction_word = B.instruction_word.Read();
 
 	unsigned int B_opcode1 = inst_bitset(B_instruction_word, 28, 28);
@@ -1681,88 +1665,165 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 	unsigned int B_opcode4 = inst_bitset(B_instruction_word, 31, 31);
 	unsigned int B_opcode5 = inst_bitset(B_instruction_word, 32, 32);
 
-	bool B_bubble_inst = B.bubble.Read();
-
-	if (B_bubble_inst){
-		return false;	//B is bubble
-	}
-	if (B_opcode5 == 0 && B_opcode4 == 1 && B_opcode3 == 1 && B_opcode2 == 0 && B_opcode1 == 1){
-		return false;	//B is nop
-	}
-	if (B_opcode5 == 0 && B_opcode4 == 0 && B_opcode3 == 1 && B_opcode2 == 0 && B_opcode1 == 1){
-		return false;	//B is cmp
-	}
-	if (B_opcode5 == 0 && B_opcode4 == 1 && B_opcode3 == 1 && B_opcode2 == 1 && B_opcode1 == 1){
-		return false;	//B is st
-	}
-	if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 1 && B_opcode1 == 0){
-		return false;	//B is b
-	}
-	if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 0 && B_opcode1 == 0){
-		return false;	//B is beq
-	}
-	if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 0 && B_opcode1 == 1){
-		return false;	//B is bgt
-	}
-	if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 1 && B_opcode2 == 0 && B_opcode1 == 0){
-		return false;	//B is ret
-	}
-
-	unsigned int A_rs1 = inst_bitset(A_instruction_word, 19,22);
-	unsigned int A_rs2 = inst_bitset(A_instruction_word, 15,18);
-	unsigned int A_rd = inst_bitset(A_instruction_word, 23,26);
-
-	unsigned int src1 = A_rs1;
-	unsigned int src2 = A_rs2;
-
-	if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1){
-		//A is st
-		src2 = A_rd;
-	}
-	if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 0){
-		//A is ret
-		src1 = 15;
-	}
-
-	unsigned int B_rd = inst_bitset(B_instruction_word, 23,26);
-
-	unsigned int dest = B_rd;
-
-	if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 1 && B_opcode1 == 1){
-		//B is call
-		dest = 15;
-	}
-
-	unsigned int A_I_bit = inst_bitset(A_instruction_word, 27, 27);
-
-	bool hasSrc1 = true;
-
-	if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 1){
-		//A is mov
-		hasSrc1 = false;
-	}
-	if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 0){
-		//A is not
-		hasSrc1 = false;
-	}
-
-	bool hasSrc2 = true;
-	if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1)){
-		//A is NOT st
-		if (A_I_bit == 1){
-			hasSrc2 = false;
+	bool A_bubble_inst = A.bubble.Read();
+	bool temp_isV = A.isV.Read();
+	if(!temp_isV){
+		cout <<"NOT VECTOR INSTRUCTION"<<endl;
+		if (A_bubble_inst){
+			return false;	//A is bubble
 		}
-	}
+		if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
+			return false;	//A is nop
+		}
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 1 && A_opcode1 == 0){
+			return false;	//A is b
+		}
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 0){
+			return false;	//A is beq
+		}
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 1){
+			return false;	//A is bgt
+		}
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 0 && A_opcode2 == 1 && A_opcode1 == 1){
+			return false;	//A is call
+		}
 
-	if (hasSrc1 && (src1 == dest)){
-		return true;
-	}
 
-	if (hasSrc2 && (src2 == dest)){
-		return true;
-	}
 
-	return false;
+		bool B_bubble_inst = B.bubble.Read();
+
+		if (B_bubble_inst){
+			return false;	//B is bubble
+		}
+		if (B_opcode5 == 0 && B_opcode4 == 1 && B_opcode3 == 1 && B_opcode2 == 0 && B_opcode1 == 1){
+			return false;	//B is nop
+		}
+		if (B_opcode5 == 0 && B_opcode4 == 0 && B_opcode3 == 1 && B_opcode2 == 0 && B_opcode1 == 1){
+			return false;	//B is cmp
+		}
+		if (B_opcode5 == 0 && B_opcode4 == 1 && B_opcode3 == 1 && B_opcode2 == 1 && B_opcode1 == 1){
+			return false;	//B is st
+		}
+		if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 1 && B_opcode1 == 0){
+			return false;	//B is b
+		}
+		if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 0 && B_opcode1 == 0){
+			return false;	//B is beq
+		}
+		if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 0 && B_opcode1 == 1){
+			return false;	//B is bgt
+		}
+		if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 1 && B_opcode2 == 0 && B_opcode1 == 0){
+			return false;	//B is ret
+		}
+
+		unsigned int A_rs1 = inst_bitset(A_instruction_word, 19,22);
+		unsigned int A_rs2 = inst_bitset(A_instruction_word, 15,18);
+		unsigned int A_rd = inst_bitset(A_instruction_word, 23,26);
+
+		unsigned int src1 = A_rs1;
+		unsigned int src2 = A_rs2;
+
+		if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1){
+			//A is st
+			src2 = A_rd;
+		}
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 0){
+			//A is ret
+			src1 = 15;
+		}
+
+		unsigned int B_rd = inst_bitset(B_instruction_word, 23,26);
+
+		unsigned int dest = B_rd;
+
+		if (B_opcode5 == 1 && B_opcode4 == 0 && B_opcode3 == 0 && B_opcode2 == 1 && B_opcode1 == 1){
+			//B is call
+			dest = 15;
+		}
+
+		unsigned int A_I_bit = inst_bitset(A_instruction_word, 27, 27);
+
+		bool hasSrc1 = true;
+
+		if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 1){
+			//A is mov
+			hasSrc1 = false;
+		}
+		if (A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 0 && A_opcode2 == 0 && A_opcode1 == 0){
+			//A is not
+			hasSrc1 = false;
+		}
+
+		bool hasSrc2 = true;
+		if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1)){
+			//A is NOT st
+			if (A_I_bit == 1){
+				hasSrc2 = false;
+			}
+		}
+
+		if (hasSrc1 && (src1 == dest)){
+			cout << "FOUND FOUND FOUND 11111"<<endl;
+			return true;
+		}
+
+		if (hasSrc2 && (src2 == dest)){
+			cout << "FOUND FOUND FOUND 222222"<<endl;
+			return true;
+		}
+
+		return false;
+	}else{
+		cout << "INSIDE ELSE "<<endl;
+		unsigned int A_rs1 = inst_bitset(A_instruction_word, 19,22);
+		unsigned int A_rs2 = inst_bitset(A_instruction_word, 15,18);
+		unsigned int A_rd = inst_bitset(A_instruction_word, 23,26);
+
+		unsigned int B_rd = inst_bitset(B_instruction_word, 23,26);
+
+		unsigned int dest = B_rd;
+
+		unsigned int src1 = A_rs1;
+		unsigned int src2 = A_rs2;
+		unsigned int B_op = inst_bitset(B_instruction_word, 27, 32);
+		unsigned int A_op = inst_bitset(A_instruction_word, 27, 32);
+
+		if (A_opcode5 == 1 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 0){
+			//A is Vst
+			src2 = A_rd;
+		}
+
+		bool hasSrc1 = true;
+
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
+			//A is Vmov1
+			hasSrc1 = false;
+		}
+		unsigned int A_I_bit = inst_bitset(A_instruction_word, 27, 27);
+		bool hasSrc2 = true;
+		if (!(A_opcode5 == 0 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 1) && (!(A_opcode5 == 1 && A_opcode4 == 1 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 0))){
+			//A is NOT st
+			if (A_I_bit == 1){
+				hasSrc2 = false;
+			}
+		}
+
+		if (hasSrc1 && (src1 == dest)){
+			cout << "DATA DEPENDENCY"<<endl;
+			return true;
+		}
+
+		if (hasSrc2 && (src2 == dest)){
+			if(A_op == 21 && (B_op !=22 && B_op != 30 && B_op > 20)){
+				return false;
+			}
+			cout << "DATA DEPENDENCY" <<endl;
+			return true;
+		}
+
+		return false;
+		}
 }
 bool Core::check_data_conflictV(PipelineRegister& A, PipelineRegister& B){
 	unsigned int A_instruction_word = A.instruction_word.Read();
@@ -1836,18 +1897,21 @@ bool Core::detect_data_dependency(){
 	if (pipeline){
 		if (check_data_conflict(if_of, of_ex)){
 			////pprint(2)<<"Data Dependency between DECODE and EXECUTE"<<endl;
+			cout << "FOUND FOUND FOUND 33333333"<<endl;
 			isDataDependency = true;
 		}
 		else if (check_data_conflict(if_of, ex_ma)){
 			////pprint(2)<<"Data Dependency between DECODE and MEMORY ACCESS"<<endl;
+			cout << "FOUND FOUND FOUND 44444444"<<endl;
 			isDataDependency = true;
 		}
 		else if (check_data_conflict(if_of, ma_rw)){
+			cout << "FOUND FOUND FOUND 55555555"<<endl;
 			////pprint(2)<<"Data Dependency between DECODE and MEMORY ACCESS"<<endl;
 			isDataDependency = true;
 		}
 	}
-
+	cout << "RETURNING IS DATA DEPENDENCY "<< isDataDependency <<endl;
 	return isDataDependency;
 
 }

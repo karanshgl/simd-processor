@@ -69,6 +69,7 @@ public:
 	Register<bool> isVAnd;
 	Register<bool> isVLd;
 	Register<bool> isVSt;
+	Register<bool> isV;
 public:
 	PipelineRegister(bool pipe);
 	void clock();

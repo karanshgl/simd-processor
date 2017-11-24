@@ -72,7 +72,6 @@ class Core
         unsigned int R[16];  
         uint64 V[16];	// Vector Registers      
         bool eq, gt;
-        bool temp_isV;
         bool isBranchTaken;
         unsigned int branchPC;
 

@@ -19,7 +19,7 @@
 
 #include "PipelineRegister.h"
 
-PipelineRegister::PipelineRegister(bool pipe): bubble(pipe), PC(pipe), instruction_word(pipe), branchTarget(pipe), A(pipe), B(pipe), operand2(pipe), aluResult(pipe), ldResult(pipe), 	isSt(pipe), isLd(pipe), isBeq(pipe), isBgt(pipe), isRet(pipe), isImmediate(pipe), isWb(pipe), isUbranch(pipe), isCall(pipe), isAdd(pipe), isSub(pipe), isCmp(pipe), isMul(pipe), isDiv(pipe), isMod(pipe), isLsl(pipe), isLsr(pipe), isAsr(pipe), isOr(pipe), isAnd(pipe), isNot(pipe), isMov(pipe), isVMov1(pipe), isVMov2(pipe), isVAdd(pipe), isVSub(pipe), isVMul(pipe), isVDiv(pipe), isVMod(pipe), isVAnd(pipe), isVLd(pipe), isVSt(pipe) {}
+PipelineRegister::PipelineRegister(bool pipe): bubble(pipe), PC(pipe), instruction_word(pipe), branchTarget(pipe), A(pipe), B(pipe), operand2(pipe), aluResult(pipe), ldResult(pipe), 	isSt(pipe), isLd(pipe), isBeq(pipe), isBgt(pipe), isRet(pipe), isImmediate(pipe), isWb(pipe), isUbranch(pipe), isCall(pipe), isAdd(pipe), isSub(pipe), isCmp(pipe), isMul(pipe), isDiv(pipe), isMod(pipe), isLsl(pipe), isLsr(pipe), isAsr(pipe), isOr(pipe), isAnd(pipe), isNot(pipe), isMov(pipe), isVMov1(pipe), isVMov2(pipe), isVAdd(pipe), isVSub(pipe), isVMul(pipe), isVDiv(pipe), isVMod(pipe), isVAnd(pipe), isVLd(pipe), isVSt(pipe), isV(pipe) {}
 
 void PipelineRegister::WriteBubble(bool to_bubble) {
 
@@ -58,6 +58,17 @@ void PipelineRegister::WriteBubble(bool to_bubble) {
 		isAnd.Write(false);
 		isNot.Write(false);
 		isMov.Write(false);
+		isVMov1.Write(false);
+		isVMov2.Write(false);
+		isVAdd.Write(false);
+		isVSub.Write(false);
+		isVMul.Write(false);
+		isVDiv.Write(false);
+		isVMod.Write(false);
+		isVAnd.Write(false);
+		isVLd.Write(false);
+		isVSt.Write(false);
+		isV.Write(false);
 	}
 	else {
 		bubble.Write(false);
@@ -103,4 +114,15 @@ void PipelineRegister::clock(){
 	isAnd.clock();
 	isNot.clock();
 	isMov.clock();
+	isVMov1.clock();
+	isVMov2.clock();
+	isVAdd.clock();
+	isVSub.clock();
+	isVMul.clock();
+	isVDiv.clock();
+	isVMod.clock();
+	isVAnd.clock();
+	isVLd.clock();
+	isVSt.clock();
+	isV.clock();
 }
