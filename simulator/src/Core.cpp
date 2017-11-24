@@ -162,7 +162,7 @@ void Core::run_simplesim(){
 	pprint(1)<<"|  r0  |  r1  |  r2  |  r3  |  r4  |  r5  |  r6  |  r7  |  r8  |  r9  |  r10  |  r11  |  r12  |  r13  |   sp  |   ra  |"<<endl;
 	pprint(1)<<"+------+------+-- ---+------+------+------+------+------+------+------+-------+-------+-------+-------+-------+-------+"<<endl;
 	pprint(1)<<"+------+------+------+------+------+------+------+------+------+------+-------+-------+-------+-------+-------+-------+"<<endl;
-	pprint(1)<<"|  v0  |  v1  |  v2  |  v3  |  v4  |  v5  |  v6  |  v7  |  v8  |  v9  |  v10  |  v11  |  v12  |  v13  |  v15  |  v16  |"<<endl;
+	pprint(1)<<"|  v0  |  v1  |  v2  |  v3  |  v4  |  v5  |  v6  |  v7  |  v8  |  v9  |  v10  |  v11  |  v12  |  v13  |  v14 |  v15  |"<<endl;
 	pprint(1)<<"+------+------+-- ---+------+------+------+------+------+------+------+-------+-------+-------+-------+-------+-------+"<<endl;
 
 	int counter = 0;
@@ -815,8 +815,7 @@ void Core::decode() {
 				//cout << "operand2 is " << temp_operand2<<endl;
 				//pprint(2)<<"Operand2: "<<dec<<temp_operand2<<" (Read from rs2)"<<endl;
 				if (!temp_isImmediate){
-					if(temp_isVMov1) fprint(1) << ";" <<vectorstring(temp_rs2)<<"=0x";
-					else fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
+					if(!temp_isVMov1) fprint(1)<<"; "<<registerstring(temp_rs2)<<" = 0x";
 				}
 			}
 			
@@ -835,7 +834,7 @@ void Core::decode() {
 	//cout << "temp_A is " << temp_A;
 	uint64 temp_B;
 	if (!temp_isImmediate){
-		fprint(1)<<hex<<temp_operand2;
+		if(!temp_isVMov1)fprint(1)<<hex<<temp_operand2;
 	}
 	else{
 		fprint(1)<<"; imm = 0x"<<hex<<temp_immx;
@@ -1504,10 +1503,13 @@ void Core::write_back() {
 			//exit(-1);
 			//cout << "vector instruction without hex " <<V[temp_addr] << "   "<< temp_addr << endl;
 			//exit(-1);
-			if(!temp_isVMov2)fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
+			if(!temp_isVMov2 && !temp_isVMov1)fprint(1)<<";"<<vectorstring(temp_addr)<<" = 0x"<<hex<<temp_result;
 			if(temp_isVMov2){
 				//cout<<"INSIDE MOV2 PRINT "<<endl;
 				fprint(1)<<";"<<registerstring(temp_addr)<<"=0x"<<hex<<R[temp_addr] <<";"<<registerstring(temp_addr+1)<<"=0x"<<hex<<R[temp_addr+1];
+			}
+			if(temp_isVMov1){
+				fprint(1)<<";"<<vectorstring(temp_addr) << "=0x" << hex << V[temp_addr];
 			}
 			/*if(temp_isVDiv){
 				cout << "temp_result" <<temp_result<<endl;
@@ -2026,12 +2028,12 @@ string Core::disassemble (unsigned int inst_word){
 		}
 	}
 	if(opcode5 == 1 && opcode4 == 0 && opcode3 == 1 && opcode2 == 0 && opcode1 == 1){
-		inst = "VMOV1" + modifier + " " + vectorstring(rd) + ", ";
+		inst = "VMOV1" + modifier + " " + vectorstring(rd) ;
 		if (isImmediate){
 			inst += ", " + hexstring(imm);
 		}
 		else {
-			inst += ", " + vectorstring(rd);
+			inst += ", " + registerstring(rs2) + ", " + registerstring(rs2+1);
 		}
 	}
 

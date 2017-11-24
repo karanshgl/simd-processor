@@ -1,0 +1,28 @@
+PROJECT: SIMD COPROCESSOR
+MADE BY: ASHISH KUMAR ( 2016CSB1033 ) & KARAN SEHGAL ( 2016CSB1080 )
+MADE UNDER: PROF. NEERAJ GOEL
+
+The project involves implementing SIMD Processor for vector instructions. Vectors are 64 bits and contain four 16 bit shorts.
+Both assembler and simulator have been fully modified for vector instructions. In the assembler, extra error checks are added to see if instructions are written correctly. For example, a MOV instruction would throw an error if Vector is used instead of a Register, and a VADD instruction would throw an error if a register is used instead of a vector.
+
+Both single cycle and pipeline models are functional.
+
+Following things have been taken into consideration when checking for data dependencies:
+
+If register source of vector instruction is a 32 bit register and it is also the destination of one of the previous three instructions. ( In case of VMov1, both RS and RS+1 registers are checked for data dependency as VMov1 copies data from RS and RS+1)
+
+If source of vector instruction is vector and it is also the destination for one of the previous 3 instructions.
+
+NOTE: Since VLd reads 64 bits of data, i.e, 2 registers, there have to be even number of elements in the array or one garbage value will be taken by the code (as it tries to access data which we have not provided as input.)
+
+IMPLEMENTATION DETAILS:
+
+Instruction fetch: Instuctions have been added to the instruction fetch unit according to their opcodes.
+
+Operand fetch: Operand fetch unit has been modified for Vector instructions. in every step of original simulator, we have added conditions for vector instructions which check if a instruction is a vector instruction or not, and if it is a vector instruction that depending on which instruction it is, we have copied data from register/vector to operands.
+
+Execution: Execute unit have been divided by if/else condition into two parts, one if the instructions are SIMD instructions and other if they are normal instructions. AluResult is calculated accordingly.
+
+Memory access:The memory access unit reads first 32 bits, then left shifts the value by 32 bits and later adds the value of the next 32-bits in a 64 bit register, which later gets written back in the Writeback stage. During the store operation it writes the first 32 bits followed by the next 32 bits.
+
+Writeback: Writeback unit has been divided into two parts by if/else condition. One is for normal instructions and other is for SIMD instructions and data is written to Register/Vector accordingly.
