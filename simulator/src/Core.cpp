@@ -217,6 +217,7 @@ void Core::run_simplesim(){
 		for (int k = 0; k< 16 ; k++){
 			pprint(1)<<right<<hex<<setw(6+(k/10))<<V[k]<<"|";
 		}
+		pprint(1)<<endl;
 
 		fetch_begin();
 		decode();
@@ -1810,8 +1811,8 @@ bool Core::check_data_conflict(PipelineRegister& A, PipelineRegister& B){
 
 		bool hasSrc1 = true;
 
-		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 0 && A_opcode1 == 1){
-			//A is Vmov1
+		if (A_opcode5 == 1 && A_opcode4 == 0 && A_opcode3 == 1 && A_opcode2 == 1 && A_opcode1 == 0){
+			//A is Vmov2
 			hasSrc1 = false;
 		}
 		unsigned int A_I_bit = inst_bitset(A_instruction_word, 27, 27);
