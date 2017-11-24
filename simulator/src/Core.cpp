@@ -962,6 +962,7 @@ void Core::execute() {
 	uint64 temp_aluResult = 0;
 	uint64 l;
 	if(temp_isV){
+		isBranchTaken = false;
 		if(temp_isImmediate && !(temp_isVLd||temp_isVSt)){
 			uint64 t = temp_B;
 			temp_B =(((((t << 16) | t) << 16) | t) << 16) | t;
